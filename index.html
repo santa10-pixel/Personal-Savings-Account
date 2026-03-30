@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Personal Savings Account – Mini Banking System</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── Reset & Base ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0a0d14;
+  --surface:   #111827;
+  --surface2:  #1a2236;
+  --border:    #1e2d47;
+  --cyan:      #22d3ee;
+  --green:     #4ade80;
+  --yellow:    #facc15;
+  --red:       #f87171;
+  --blue:      #60a5fa;
+  --magenta:   #c084fc;
+  --dim:       #4b5563;
+  --text:      #e2e8f0;
+  --text-dim:  #64748b;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+/* ── Layout ───────────────────────────────────────────── */
+.app { width: 100%; max-width: 1100px; display: grid; grid-template-columns: 280px 1fr; gap: 18px; }
+
+/* ── Header ───────────────────────────────────────────── */
+header {
+  width: 100%; max-width: 1100px;
+  text-align: center; margin-bottom: 20px;
+}
+header h1 {
+  font-size: 1.8rem; font-weight: 700;
+  background: linear-gradient(90deg, var(--cyan), var(--blue), var(--magenta));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
+}
+header p { color: var(--text-dim); font-size: .85rem; margin-top: 4px; }
+
+/* ── Panel ────────────────────────────────────────────── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.panel-title {
+  padding: 12px 18px;
+  font-size: .75rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--cyan);
+  border-bottom: 1px solid var(--border);
+  background: rgba(34,211,238,.05);
+}
+
+/* ── Side Menu ────────────────────────────────────────── */
+.menu-list { padding: 10px 0; }
+.menu-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 18px; cursor: pointer;
+  font-size: .88rem; color: var(--text-dim);
+  transition: background .15s, color .15s;
+  border-left: 3px solid transparent;
+}
+.menu-item:hover { background: var(--surface2); color: var(--text); }
+.menu-item.active {
+  background: rgba(34,211,238,.1);
+  color: var(--cyan); border-left-color: var(--cyan);
+}
+.menu-item .icon { font-size: 1rem; width: 22px; text-align: center; }
+.menu-divider { height: 1px; background: var(--border); margin: 6px 12px; }
+
+/* ── Main Area ────────────────────────────────────────── */
+.main-area { display: flex; flex-direction: column; gap: 18px; }
+
+/* ── Terminal Output ──────────────────────────────────── */
+.terminal {
+  background: #060a10;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  flex: 1;
+}
+.terminal-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; background: #0e1420;
+  border-bottom: 1px solid var(--border);
+}
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot-red    { background: #ff5f57; }
+.dot-yellow { background: #febc2e; }
+.dot-green  { background: #28c840; }
+.terminal-title { font-size: .75rem; color: var(--text-dim); margin-left: auto; font-family: 'JetBrains Mono', monospace; }
+#output {
+  padding: 16px; min-height: 340px; max-height: 420px;
+  overflow-y: auto; font-family: 'JetBrains Mono', monospace;
+  font-size: .82rem; line-height: 1.65; white-space: pre-wrap;
+  word-break: break-word;
+}
+/* coloured spans */
+.c-cyan   { color: var(--cyan); }
+.c-green  { color: var(--green); }
+.c-yellow { color: var(--yellow); }
+.c-red    { color: var(--red); }
+.c-blue   { color: var(--blue); }
+.c-magenta{ color: var(--magenta); }
+.c-dim    { color: var(--dim); }
+.c-bold   { font-weight: 600; }
+
+/* ── Input Row ────────────────────────────────────────── */
+.input-row {
+  background: #060a10;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex; gap: 10px; align-items: center;
+}
+.input-prompt { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: .85rem; white-space: nowrap; }
+#userInput {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--green); font-family: 'JetBrains Mono', monospace;
+  font-size: .88rem; caret-color: var(--cyan);
+}
+#sendBtn {
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  border: none; border-radius: 8px; padding: 8px 18px;
+  color: #000; font-weight: 700; font-size: .82rem; cursor: pointer;
+  transition: opacity .2s;
+}
+#sendBtn:hover { opacity: .85; }
+
+/* ── Account Cards ────────────────────────────────────── */
+.account-cards { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+.acc-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 14px;
+  cursor: pointer; transition: border-color .2s;
+}
+.acc-card:hover { border-color: var(--cyan); }
+.acc-card .acc-no  { font-size: .72rem; color: var(--text-dim); }
+.acc-card .acc-name{ font-size: .88rem; font-weight: 600; color: var(--text); }
+.acc-card .acc-bal { font-size: .82rem; color: var(--green); }
+
+/* ── Stats ────────────────────────────────────────────── */
+.stats-row { display: flex; gap: 10px; flex-wrap: wrap; padding: 10px; }
+.stat-box {
+  flex: 1; min-width: 100px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 12px; text-align: center;
+}
+.stat-label { font-size: .68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+.stat-value { font-size: 1.05rem; font-weight: 700; margin-top: 4px; }
+
+/* ── Scrollbar ────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 680px) {
+  .app { grid-template-columns: 1fr; }
+  aside { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>💰 Personal Savings Account System</h1>
+  <p>DA2 · C++ OOP Mini Project · Interactive Demo (JS Mirror)</p>
+</header>
+
+<div class="app">
+  <!-- ── Sidebar ── -->
+  <aside>
+    <div class="panel" style="margin-bottom:18px;">
+      <div class="panel-title">Main Menu</div>
+      <div class="menu-list" id="menuList">
+        <div class="menu-item active" data-cmd="1"><span class="icon">🏦</span> Create Account</div>
+        <div class="menu-item" data-cmd="2"><span class="icon">💵</span> Deposit</div>
+        <div class="menu-item" data-cmd="3"><span class="icon">💸</span> Withdraw</div>
+        <div class="menu-item" data-cmd="4"><span class="icon">🔍</span> Balance Enquiry</div>
+        <div class="menu-item" data-cmd="5"><span class="icon">📋</span> Last 5 Transactions</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" data-cmd="6"><span class="icon">📊</span> Total Money Report</div>
+        <div class="menu-item" data-cmd="7"><span class="icon">⚠️</span> Low Balance Report</div>
+        <div class="menu-item" data-cmd="8"><span class="icon">📂</span> List All Accounts</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" data-cmd="demo"><span class="icon">🎯</span> Load Demo Data</div>
+        <div class="menu-item" data-cmd="clear"><span class="icon">🧹</span> Clear Terminal</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Live Accounts</div>
+      <div id="accountCards" class="account-cards">
+        <div style="padding:10px;color:var(--dim);font-size:.8rem;">No accounts yet.</div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:18px;">
+      <div class="panel-title">Stats</div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-label">Accounts</div>
+          <div class="stat-value c-cyan" id="statAccounts">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total ₹</div>
+          <div class="stat-value c-green" id="statTotal">0.00</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main-area">
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="terminal-title">banking_system ~ interactive</span>
+      </div>
+      <div id="output"></div>
+    </div>
+    <div class="input-row">
+      <span class="input-prompt">$&gt;&nbsp;</span>
+      <input id="userInput" type="text" placeholder="Type your answer and press Enter…" autocomplete="off" autocorrect="off" spellcheck="false"/>
+      <button id="sendBtn">SEND</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  JavaScript Mirror of the C++ Banking System
+// ═══════════════════════════════════════════════════════
+
+// ── Data Structures ─────────────────────────────────────
+const bank = {
+  accounts: [],          // { accNo, name, balance, history[] }
+  txnGlobal: 0,
+};
+
+function findAcc(no) {
+  return bank.accounts.find(a => a.accNo === parseInt(no));
+}
+
+function now() {
+  const d = new Date();
+  return d.toISOString().replace('T',' ').substring(0,19);
+}
+
+function fmt(n) { return parseFloat(n).toFixed(2); }
+
+// ── Terminal Output ──────────────────────────────────────
+const out = document.getElementById('output');
+
+function span(cls, txt) {
+  return `<span class="${cls}">${escHtml(txt)}</span>`;
+}
+function escHtml(t) {
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function print(html) {
+  out.innerHTML += html + '\n';
+  out.scrollTop = out.scrollHeight;
+}
+function println(html = '') { print(html); }
+
+function printLine(char='─', len=52, cls='c-dim') {
+  print(span(cls, '  ' + char.repeat(len)));
+}
+
+// ── State Machine ────────────────────────────────────────
+let state = 'MENU';
+let stateData = {};
+
+function setMenuActive(cmd) {
+  document.querySelectorAll('.menu-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.cmd === String(cmd));
+  });
+}
+
+function showMenu() {
+  state = 'MENU';
+  stateData = {};
+  println();
+  print(span('c-cyan','  ┌─── MAIN MENU ──────────────────────────────┐'));
+  print(span('c-green','  │  1.') + ' Create New Account');
+  print(span('c-green','  │  2.') + ' Deposit');
+  print(span('c-green','  │  3.') + ' Withdraw');
+  print(span('c-green','  │  4.') + ' Balance Enquiry');
+  print(span('c-green','  │  5.') + ' View Last 5 Transactions');
+  print(span('c-yellow','  │  6.') + ' Report – Total Money');
+  print(span('c-yellow','  │  7.') + ' Report – Low Balance Accounts (< ₹500)');
+  print(span('c-blue','  │  8.') + ' List All Accounts');
+  print(span('c-dim','  │  0.') + ' Exit / Reset');
+  print(span('c-cyan','  └─────────────────────────────────────────────┘'));
+  print(span('c-bold','  Choice: ') );
+}
+
+// ── Handlers ────────────────────────────────────────────
+function handleMenu(input) {
+  const n = input.trim();
+  switch(n) {
+    case '1': startCreateAcc();   break;
+    case '2': startDeposit();     break;
+    case '3': startWithdraw();    break;
+    case '4': startBalance();     break;
+    case '5': startHistory();     break;
+    case '6': doTotalReport();    break;
+    case '7': doLowReport();      break;
+    case '8': doListAll();        break;
+    case '0': doExit();           break;
+    default:
+      print(span('c-red','  ✗ Invalid option. Try 0–8.'));
+      showMenu();
+  }
+}
+
+// ── Create Account ────────────────────────────────────────
+function startCreateAcc() {
+  setMenuActive('1');
+  print(span('c-cyan','\n  ┌─ Create New Account ─────────────────────┐'));
+  print('  Enter Account Number → ');
+  state = 'CREATE_ACCNO';
+}
+function handleCreateAccNo(v) {
+  const no = parseInt(v);
+  if (isNaN(no) || no <= 0) { print(span('c-red','  ✗ Invalid account number.')); return showMenu(); }
+  if (findAcc(no)) { print(span('c-red',`  ✗ Account #${no} already exists.`)); return showMenu(); }
+  stateData.no = no;
+  print('  Enter Account Holder Name → ');
+  state = 'CREATE_NAME';
+}
+function handleCreateName(v) {
+  if (!v.trim()) { print(span('c-red','  ✗ Name cannot be empty.')); return showMenu(); }
+  stateData.name = v.trim();
+  print('  Opening Deposit (0 for none) → ₹');
+  state = 'CREATE_DEP';
+}
+function handleCreateDep(v) {
+  const dep = parseFloat(v);
+  const amount = (isNaN(dep) || dep < 0) ? 0 : dep;
+  bank.accounts.push({
+    accNo: stateData.no,
+    name: stateData.name,
+    balance: amount,
+    history: []
+  });
+  if (amount > 0) {
+    const acc = findAcc(stateData.no);
+    bank.txnGlobal++;
+    acc.history.push({ no: bank.txnGlobal, type:'DEPOSIT', amount, balAfter: amount, ts: now() });
+  }
+  print(span('c-green',`  ✓ Account #${stateData.no} created for ${stateData.name} with balance ₹${fmt(amount)}`));
+  updateSidebar();
+  showMenu();
+}
+
+// ── Deposit ────────────────────────────────────────────────
+function startDeposit() {
+  setMenuActive('2');
+  print(span('c-cyan','\n  ┌─ Deposit ─────────────────────────────────┐'));
+  print('  Enter Account Number → ');
+  state = 'DEP_ACCNO';
+}
+function handleDepAccNo(v) {
+  const acc = findAcc(v);
+  if (!acc) { print(span('c-red','  ✗ Account not found.')); return showMenu(); }
+  stateData.acc = acc;
+  print(`  Hi ${span('c-blue',acc.name)}! Enter Amount → ₹`);
+  state = 'DEP_AMOUNT';
+}
+function handleDepAmount(v) {
+  const amt = parseFloat(v);
+  if (isNaN(amt) || amt <= 0) { print(span('c-red','  ✗ Invalid amount.')); return showMenu(); }
+  const acc = stateData.acc;
+  acc.balance += amt;
+  bank.txnGlobal++;
+  acc.history.push({ no: bank.txnGlobal, type:'DEPOSIT', amount: amt, balAfter: acc.balance, ts: now() });
+  print(span('c-green',`  ✓ Deposited ₹${fmt(amt)}. New balance: ₹${fmt(acc.balance)}`));
+  updateSidebar();
+  showMenu();
+}
+
+// ── Withdraw ───────────────────────────────────────────────
+function startWithdraw() {
+  setMenuActive('3');
+  print(span('c-cyan','\n  ┌─ Withdraw ────────────────────────────────┐'));
+  print('  Enter Account Number → ');
+  state = 'WD_ACCNO';
+}
+function handleWdAccNo(v) {
+  const acc = findAcc(v);
+  if (!acc) { print(span('c-red','  ✗ Account not found.')); return showMenu(); }
+  stateData.acc = acc;
+  print(`  Hi ${span('c-blue',acc.name)}! Current Balance: ${span('c-green','₹'+fmt(acc.balance))}`);
+  print('  Enter Amount → ₹');
+  state = 'WD_AMOUNT';
+}
+function handleWdAmount(v) {
+  const amt = parseFloat(v);
+  const acc = stateData.acc;
+  if (isNaN(amt) || amt <= 0) { print(span('c-red','  ✗ Invalid amount.')); return showMenu(); }
+  if (amt > acc.balance) {
+    print(span('c-red',`  ✗ Insufficient funds! Balance: ₹${fmt(acc.balance)}`));
+    return showMenu();
+  }
+  acc.balance -= amt;
+  bank.txnGlobal++;
+  acc.history.push({ no: bank.txnGlobal, type:'WITHDRAW', amount: amt, balAfter: acc.balance, ts: now() });
+  print(span('c-yellow',`  ✓ Withdrawn ₹${fmt(amt)}. Remaining balance: ₹${fmt(acc.balance)}`));
+  updateSidebar();
+  showMenu();
+}
+
+// ── Balance Enquiry ───────────────────────────────────────
+function startBalance() {
+  setMenuActive('4');
+  print(span('c-cyan','\n  ┌─ Balance Enquiry ─────────────────────────┐'));
+  print('  Enter Account Number → ');
+  state = 'BAL_ACCNO';
+}
+function handleBalAccNo(v) {
+  const acc = findAcc(v);
+  if (!acc) { print(span('c-red','  ✗ Account not found.')); return showMenu(); }
+  print(span('c-cyan',`  Account  : #${acc.accNo}  (${acc.name})`));
+  print(span('c-green',`  Balance  : ₹${fmt(acc.balance)}`));
+  showMenu();
+}
+
+// ── History ────────────────────────────────────────────────
+function startHistory() {
+  setMenuActive('5');
+  print(span('c-cyan','\n  ┌─ Transaction History ─────────────────────┐'));
+  print('  Enter Account Number → ');
+  state = 'HIST_ACCNO';
+}
+function handleHistAccNo(v) {
+  const acc = findAcc(v);
+  if (!acc) { print(span('c-red','  ✗ Account not found.')); return showMenu(); }
+  const slice = acc.history.slice(-5);
+  if (slice.length === 0) {
+    print(span('c-dim','  No transactions yet.'));
+    return showMenu();
+  }
+  print(span('c-cyan',`  Last ${slice.length} transactions for Acc #${acc.accNo} (${acc.name}):`));
+  printLine('─', 66);
+  slice.forEach(t => {
+    const color = t.type === 'DEPOSIT' ? 'c-green' : 'c-red';
+    print(
+      span('c-cyan',`  #${String(t.no).padStart(4,' ')}`) + '  ' +
+      span(color, t.type.padEnd(8,' ')) + '  ' +
+      span('c-yellow', ('₹'+fmt(t.amount)).padStart(10,' ')) + '  Bal: ' +
+      span('c-blue', ('₹'+fmt(t.balAfter)).padStart(10,' ')) + '  ' +
+      span('c-dim', t.ts)
+    );
+  });
+  printLine('─', 66);
+  showMenu();
+}
+
+// ── Reports ────────────────────────────────────────────────
+function doTotalReport() {
+  setMenuActive('6');
+  const total = bank.accounts.reduce((s,a) => s + a.balance, 0);
+  println();
+  print(span('c-magenta',`  Total money held across all accounts: ₹${fmt(total)}`));
+  print(span('c-blue',`  Number of accounts: ${bank.accounts.length}`));
+  showMenu();
+}
+
+function doLowReport() {
+  setMenuActive('7');
+  const threshold = 500;
+  println();
+  print(span('c-yellow',`  Accounts with balance < ₹${threshold}:`));
+  const low = bank.accounts.filter(a => a.balance < threshold);
+  if (low.length === 0) {
+    print(span('c-green','  ✓ No accounts below threshold.'));
+  } else {
+    low.forEach(a => print(span('c-red',`  Acc #${a.accNo} (${a.name}) — ₹${fmt(a.balance)}`)));
+  }
+  showMenu();
+}
+
+function doListAll() {
+  setMenuActive('8');
+  println();
+  if (bank.accounts.length === 0) {
+    print(span('c-dim','  No accounts found.'));
+    return showMenu();
+  }
+  print(span('c-cyan','  All Accounts:'));
+  printLine('─', 50);
+  bank.accounts.forEach(a => {
+    print(
+      span('c-blue', `  #${String(a.accNo).padStart(6,' ')}`) + '  ' +
+      a.name.padEnd(22,' ') +
+      span('c-green', `  ₹${fmt(a.balance)}`)
+    );
+  });
+  printLine('─', 50);
+  showMenu();
+}
+
+function doExit() {
+  print(span('c-cyan','\n  👋  Session ended. All data would be saved to file in the C++ version.'));
+  print(span('c-dim','  Reloading menu in 2s…'));
+  setTimeout(() => {
+    out.innerHTML = '';
+    printBanner();
+    showMenu();
+  }, 2000);
+}
+
+// ── Input Dispatcher ──────────────────────────────────────
+function dispatch(input) {
+  // echo
+  print(span('c-dim','  > ') + span('c-green', escHtml(input)));
+  switch(state) {
+    case 'MENU':         handleMenu(input);       break;
+    case 'CREATE_ACCNO': handleCreateAccNo(input);break;
+    case 'CREATE_NAME':  handleCreateName(input); break;
+    case 'CREATE_DEP':   handleCreateDep(input);  break;
+    case 'DEP_ACCNO':    handleDepAccNo(input);   break;
+    case 'DEP_AMOUNT':   handleDepAmount(input);  break;
+    case 'WD_ACCNO':     handleWdAccNo(input);    break;
+    case 'WD_AMOUNT':    handleWdAmount(input);   break;
+    case 'BAL_ACCNO':    handleBalAccNo(input);   break;
+    case 'HIST_ACCNO':   handleHistAccNo(input);  break;
+  }
+}
+
+// ── Sidebar Update ──────────────────────────────────────────
+function updateSidebar() {
+  const cards = document.getElementById('accountCards');
+  const total = bank.accounts.reduce((s,a) => s+a.balance, 0);
+  document.getElementById('statAccounts').textContent = bank.accounts.length;
+  document.getElementById('statTotal').textContent    = fmt(total);
+
+  if (bank.accounts.length === 0) {
+    cards.innerHTML = '<div style="padding:10px;color:var(--dim);font-size:.8rem;">No accounts yet.</div>';
+    return;
+  }
+  cards.innerHTML = bank.accounts.map(a => `
+    <div class="acc-card" onclick="quickBalance(${a.accNo})">
+      <div class="acc-no">Acc #${a.accNo}</div>
+      <div class="acc-name">${escHtml(a.name)}</div>
+      <div class="acc-bal">₹${fmt(a.balance)}</div>
+    </div>
+  `).join('');
+}
+
+function quickBalance(no) {
+  out.innerHTML = '';
+  const acc = findAcc(no);
+  if (!acc) return;
+  printLine('─',52,'c-cyan');
+  print(span('c-cyan',`  Quick Balance: Acc #${acc.accNo} (${acc.name})`));
+  print(span('c-green',`  Balance: ₹${fmt(acc.balance)}`));
+  printLine('─',52,'c-cyan');
+  showMenu();
+}
+
+// ── Demo Data ───────────────────────────────────────────────
+function loadDemo() {
+  out.innerHTML = '';
+  bank.accounts = [];
+  bank.txnGlobal = 0;
+
+  const seed = [
+    { no:1001, name:'Ananya Sharma',  bal:2500 },
+    { no:1002, name:'Ravi Kumar',      bal:380  },
+    { no:1003, name:'Priya Nair',      bal:8750 },
+    { no:1004, name:'Mohammed Ali',    bal:120  },
+  ];
+  seed.forEach(s => {
+    bank.txnGlobal++;
+    bank.accounts.push({
+      accNo: s.no, name: s.name, balance: s.bal,
+      history: [
+        { no: bank.txnGlobal, type:'DEPOSIT', amount: s.bal, balAfter: s.bal, ts: '2026-03-01 09:00:00' }
+      ]
+    });
+  });
+  // Extra transactions on acc 1001
+  const a1 = findAcc(1001);
+  bank.txnGlobal++; a1.history.push({ no:bank.txnGlobal, type:'WITHDRAW', amount:500, balAfter:2000, ts:'2026-03-10 14:22:00' });
+  a1.balance = 2000;
+  bank.txnGlobal++; a1.history.push({ no:bank.txnGlobal, type:'DEPOSIT',  amount:800, balAfter:2800, ts:'2026-03-15 10:05:00' });
+  a1.balance = 2800;
+
+  print(span('c-magenta','  🎯  Demo data loaded! 4 accounts seeded.'));
+  updateSidebar();
+  showMenu();
+}
+
+// ── Banner ───────────────────────────────────────────────────
+function printBanner() {
+  print(span('c-cyan c-bold','  ╔══════════════════════════════════════════════════╗'));
+  print(span('c-cyan c-bold','  ║   💰  Personal Savings Account System            ║'));
+  print(span('c-cyan c-bold','  ║      DA2 · C++ OOP Mini Project (JS Mirror)      ║'));
+  print(span('c-cyan c-bold','  ╚══════════════════════════════════════════════════╝'));
+  print(span('c-dim', '  Data is kept in memory (mirrors file persistence in C++ build).'));
+}
+
+// ── Menu click events ────────────────────────────────────────
+document.getElementById('menuList').addEventListener('click', e => {
+  const item = e.target.closest('.menu-item');
+  if (!item) return;
+  const cmd = item.dataset.cmd;
+  if (cmd === 'demo')  { state='MENU'; loadDemo(); return; }
+  if (cmd === 'clear') { out.innerHTML = ''; printBanner(); showMenu(); return; }
+  // Trigger as if user typed
+  state = 'MENU';
+  dispatch(cmd);
+});
+
+// ── Input events ──────────────────────────────────────────────
+const inp = document.getElementById('userInput');
+document.getElementById('sendBtn').addEventListener('click', () => {
+  const v = inp.value;
+  inp.value = '';
+  if (v.trim() === '') return;
+  dispatch(v);
+});
+inp.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const v = inp.value;
+    inp.value = '';
+    if (v.trim() === '') return;
+    dispatch(v);
+  }
+});
+
+// ── Boot ──────────────────────────────────────────────────────
+printBanner();
+showMenu();
+updateSidebar();
+inp.focus();
+</script>
+</body>
+</html>
