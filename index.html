@@ -194,7 +194,9 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
   <aside>
     <div class="panel">
       <div class="menu-list" id="menuList">
-        <div class="menu-item active" data-view="view-create"><span class="icon">🏦</span> Create Account</div>
+        <div class="menu-item active" data-view="view-home"><span class="icon">🏠</span> Dashboard Home</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" data-view="view-create"><span class="icon">🏦</span> Create Account</div>
         <div class="menu-item" data-view="view-deposit"><span class="icon">💵</span> Deposit</div>
         <div class="menu-item" data-view="view-withdraw"><span class="icon">💸</span> Withdraw</div>
         <div class="menu-item" data-view="view-balance"><span class="icon">🔍</span> Balance Enquiry</div>
@@ -206,21 +208,27 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
         <div class="menu-item" data-cmd="demo"><span class="icon">🎯</span> Load Demo Data</div>
       </div>
     </div>
-    
-    <div class="panel">
-      <div class="panel-header">Live Accounts</div>
-      <div id="sidebarAccounts">
-        <div style="padding:16px 20px; color:var(--text-dim); font-size:0.85rem;">No accounts yet.</div>
-      </div>
-    </div>
   </aside>
 
   <!-- ── Main Area ── -->
   <main>
     <div class="panel" style="flex:1;">
       
+      <!-- Home View -->
+      <div id="view-home" class="view active">
+        <div class="panel-header">Dashboard Home</div>
+        <div class="panel-body" style="text-align: center; padding: 60px 20px;">
+          <h2 style="color:var(--cyan); font-size:1.8rem; margin-bottom:10px;">Welcome to Banking System</h2>
+          <p style="color:var(--text-dim); margin-bottom: 40px; font-size:1.05rem;">Select an option from the sidebar to begin.</p>
+          <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+            <button class="btn" onclick="document.querySelector('[data-view=\'view-create\']').click()">Get Started: Create Account</button>
+            <button class="btn btn-outline" onclick="document.querySelector('[data-view=\'view-deposit\']').click()">Make a Deposit</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Create Account View -->
-      <div id="view-create" class="view active">
+      <div id="view-create" class="view">
         <div class="panel-header">Create New Account</div>
         <div class="panel-body">
           <form id="form-create" onsubmit="handleCreate(event)">
@@ -453,20 +461,7 @@ function refreshSelects() {
 }
 
 function updateSidebar() {
-  const sb = document.getElementById('sidebarAccounts');
-  if(bank.accounts.length === 0) {
-    sb.innerHTML = '<div style="padding:16px 20px; color:var(--text-dim); font-size:0.85rem;">No accounts yet.</div>';
-    return;
-  }
-  sb.innerHTML = bank.accounts.map(a => `
-    <div class="acc-mini">
-      <div>
-        <div style="font-weight:600; color:var(--text);">${escHtml(a.name)}</div>
-        <div class="acc-mini-no">#${a.accNo}</div>
-      </div>
-      <div style="color:var(--green); font-weight:600;">₹${fmt(a.balance)}</div>
-    </div>
-  `).join('');
+  // Sidebar accounts removed for privacy, just refresh selects
   refreshSelects();
 }
 
@@ -587,6 +582,7 @@ function generateReports() {
   const tb = document.getElementById('rep-low-table');
   if (low.length === 0) {
     tb.innerHTML = '<tr><td colspan="3" class="text-center text-green">✓ No accounts below threshold.</td></tr>';
+    showToast('No low balance accounts found.', 'success', '✅');
   } else {
     tb.innerHTML = low.map(a => `
       <tr>
