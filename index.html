@@ -258,6 +258,16 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
               <label>16-Digit Account Number</label>
               <input type="text" id="create-accno" class="form-control" placeholder="e.g. 1234567890123456" minlength="16" maxlength="16" pattern="\d{16}" required>
             </div>
+            <div style="display:flex; gap:16px; margin-bottom:16px; max-width:400px;">
+              <div class="form-group" style="margin-bottom:0; flex:1;">
+                <label>4-Digit Secret PIN</label>
+                <input type="password" id="create-pin1" class="form-control" placeholder="1234" minlength="4" maxlength="4" pattern="\d{4}" required>
+              </div>
+              <div class="form-group" style="margin-bottom:0; flex:1;">
+                <label>Confirm PIN</label>
+                <input type="password" id="create-pin2" class="form-control" placeholder="1234" minlength="4" maxlength="4" pattern="\d{4}" required>
+              </div>
+            </div>
             <div class="form-group">
               <label>Full Name</label>
               <input type="text" id="create-name" class="form-control" placeholder="Account holder name" required>
@@ -300,6 +310,10 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
               <label>Amount to Deposit (₹)</label>
               <input type="number" id="dep-amount" class="form-control" min="0.01" step="0.01" required>
             </div>
+            <div class="form-group">
+              <label>Confirm Password/PIN</label>
+              <input type="password" id="dep-pin" class="form-control" minlength="4" maxlength="4" pattern="\d{4}" required style="max-width:200px;">
+            </div>
             <button type="submit" class="btn">Confirm Deposit</button>
           </form>
         </div>
@@ -314,6 +328,10 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
               <label>Amount to Withdraw (₹)</label>
               <input type="number" id="wd-amount" class="form-control" min="0.01" step="0.01" required>
             </div>
+            <div class="form-group">
+              <label>Confirm Password/PIN</label>
+              <input type="password" id="wd-pin" class="form-control" minlength="4" maxlength="4" pattern="\d{4}" required style="max-width:200px;">
+            </div>
             <button type="submit" class="btn">Confirm Withdrawal</button>
           </form>
         </div>
@@ -323,7 +341,14 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
       <div id="view-balance" class="view">
         <div class="panel-header">Balance Enquiry</div>
         <div class="panel-body">
-          <div id="bal-result">
+          <form id="form-balance" onsubmit="handleBalance(event)" style="margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:20px;">
+            <div class="form-group">
+              <label>Confirm Password/PIN to View Balance</label>
+              <input type="password" id="bal-pin" class="form-control" minlength="4" maxlength="4" pattern="\d{4}" required style="max-width:200px;">
+            </div>
+            <button type="submit" class="btn btn-outline" style="padding: 6px 16px;">Unlock Balance</button>
+          </form>
+          <div id="bal-result" style="display:none; transition:opacity 0.3s;">
             <div class="balance-display" style="max-width:500px;">
               <div class="balance-label">Current Balance</div>
               <div id="bal-disp-amount" class="balance-amount text-green">₹0.00</div>
@@ -337,7 +362,14 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
       <div id="view-history" class="view">
         <div class="panel-header">My Last 5 Transactions</div>
         <div class="panel-body">
-          <div id="hist-result">
+          <form id="form-history" onsubmit="handleHistory(event)" style="margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:20px;">
+            <div class="form-group">
+              <label>Confirm Password/PIN to View History</label>
+              <input type="password" id="hist-pin" class="form-control" minlength="4" maxlength="4" pattern="\d{4}" required style="max-width:200px;">
+            </div>
+            <button type="submit" class="btn btn-outline" style="padding: 6px 16px;">Unlock History</button>
+          </form>
+          <div id="hist-result" style="display:none;">
             <table class="data-table">
               <thead>
                 <tr>
@@ -452,8 +484,16 @@ function switchView(viewId) {
   if(viewId === 'view-reports') generateReports();
   if(viewId === 'view-list') generateListAll();
   if(viewId === 'view-home') updateHomeView();
-  if(viewId === 'view-balance') handleBalance();
-  if(viewId === 'view-history') handleHistory();
+  
+  // Hide results again until PIN is verified
+  const br = document.getElementById('bal-result'); if(br) br.style.display = 'none';
+  const hr = document.getElementById('hist-result'); if(hr) hr.style.display = 'none';
+  
+  // Clear forms
+  const df = document.getElementById('form-deposit'); if(df) df.reset();
+  const wf = document.getElementById('form-withdraw'); if(wf) wf.reset();
+  const bf = document.getElementById('form-balance'); if(bf) bf.reset();
+  const hf = document.getElementById('form-history'); if(hf) hf.reset();
 }
 
 menuItems.forEach(item => {
@@ -520,6 +560,8 @@ function goToLogin() {
 function handleCreate(e) {
   e.preventDefault();
   const accNo = document.getElementById('create-accno').value.trim();
+  const pin1 = document.getElementById('create-pin1').value;
+  const pin2 = document.getElementById('create-pin2').value;
   const name = document.getElementById('create-name').value.trim();
   const depStr = document.getElementById('create-dep').value;
   const amount = (depStr === '' || isNaN(depStr)) ? 0 : parseFloat(depStr);
@@ -528,12 +570,16 @@ function handleCreate(e) {
     showToast('Account number must be 16 digits.', 'error', '⚠️');
     return;
   }
+  if(pin1 !== pin2) {
+    showToast('Secret PINs do not match.', 'error', '✗');
+    return;
+  }
   if (findAcc(accNo)) {
     showToast(`Account #${accNo} already exists!`, 'error', '✗');
     return;
   }
 
-  bank.accounts.push({ accNo, name, balance: amount, history: [] });
+  bank.accounts.push({ accNo, pin: pin1, name, balance: amount, history: [] });
   if (amount > 0) {
     const acc = findAcc(accNo);
     bank.txnGlobal++;
@@ -560,9 +606,12 @@ function handleDeposit(e) {
   e.preventDefault();
   if(!loggedInAccount) return;
   const amt = parseFloat(document.getElementById('dep-amount').value);
+  const pin = document.getElementById('dep-pin').value;
   if(isNaN(amt) || amt <= 0) return showToast('Invalid amount', 'error', '⚠️');
 
   const acc = findAcc(loggedInAccount);
+  if (acc.pin !== pin) return showToast('Incorrect PIN. Access Denied.', 'error', '🔒');
+
   acc.balance += amt;
   bank.txnGlobal++;
   acc.history.push({ no: bank.txnGlobal, type:'DEPOSIT', amount: amt, balAfter: acc.balance, ts: now() });
@@ -576,9 +625,12 @@ function handleWithdraw(e) {
   e.preventDefault();
   if(!loggedInAccount) return;
   const amt = parseFloat(document.getElementById('wd-amount').value);
+  const pin = document.getElementById('wd-pin').value;
   if(isNaN(amt) || amt <= 0) return showToast('Invalid amount', 'error', '⚠️');
 
   const acc = findAcc(loggedInAccount);
+  if (acc.pin !== pin) return showToast('Incorrect PIN. Access Denied.', 'error', '🔒');
+  
   if (amt > acc.balance) {
     return showToast(`Insufficient funds! Balance is ₹${fmt(acc.balance)}`, 'error', '⚠️');
   }
@@ -592,16 +644,28 @@ function handleWithdraw(e) {
   switchView('view-home');
 }
 
-function handleBalance() {
+function handleBalance(e) {
+  if(e) e.preventDefault();
   if(!loggedInAccount) return;
+  const pin = document.getElementById('bal-pin').value;
   const acc = findAcc(loggedInAccount);
+  
+  if (acc.pin !== pin) return showToast('Incorrect PIN. Access Denied.', 'error', '🔒');
+  
   document.getElementById('bal-disp-amount').textContent = `₹${fmt(acc.balance)}`;
   document.getElementById('bal-disp-acc').innerHTML = `Account: #${acc.accNo}`;
+  document.getElementById('bal-result').style.display = 'block';
+  showToast('Verified Access', 'success', '✓');
 }
 
-function handleHistory() {
+function handleHistory(e) {
+  if(e) e.preventDefault();
   if(!loggedInAccount) return;
+  const pin = document.getElementById('hist-pin').value;
   const acc = findAcc(loggedInAccount);
+  
+  if (acc.pin !== pin) return showToast('Incorrect PIN. Access Denied.', 'error', '🔒');
+  
   const tb = document.getElementById('hist-table-body');
   const slice = acc.history.slice(-5).reverse();
   
@@ -619,6 +683,8 @@ function handleHistory() {
       </tr>`;
     }).join('');
   }
+  document.getElementById('hist-result').style.display = 'block';
+  showToast('Verified Access', 'success', '✓');
 }
 
 function generateReports() {
@@ -669,15 +735,15 @@ function loadDemo() {
   bank.txnGlobal = 0;
 
   const seed = [
-    { no:'1000000000001001', name:'Ananya Sharma',  bal:2500 },
-    { no:'1000000000001002', name:'Ravi Kumar',      bal:380  },
-    { no:'1000000000001003', name:'Priya Nair',      bal:8750 },
-    { no:'1000000000001004', name:'Mohammed Ali',    bal:120  },
+    { no:'1000000000001001', pin:'1234', name:'Ananya Sharma',  bal:2500 },
+    { no:'1000000000001002', pin:'1234', name:'Ravi Kumar',      bal:380  },
+    { no:'1000000000001003', pin:'1234', name:'Priya Nair',      bal:8750 },
+    { no:'1000000000001004', pin:'1234', name:'Mohammed Ali',    bal:120  },
   ];
   seed.forEach(s => {
     bank.txnGlobal++;
     bank.accounts.push({
-      accNo: s.no, name: s.name, balance: s.bal,
+      accNo: s.no, pin: s.pin, name: s.name, balance: s.bal,
       history: [
         { no: bank.txnGlobal, type:'DEPOSIT', amount: s.bal, balAfter: s.bal, ts: '2026-03-01 09:00:00' }
       ]

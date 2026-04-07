@@ -108,6 +108,7 @@ public:
 class Account {
 private:
     string accNo;
+    string pin;
     string name;
     double balance;
     vector<Transaction> history;
@@ -115,8 +116,11 @@ private:
 
 public:
     // New account constructor
-    Account(const string& no, const string& n, double initBalance = 0.0)
-        : accNo(no), name(n), balance(initBalance), txnCounter(0) {}
+    Account(const string& no, const string& p, const string& n, double initBalance = 0.0)
+        : accNo(no), pin(p), name(n), balance(initBalance), txnCounter(0) {}
+
+    // Verify PIN
+    bool verifyPin(const string& p) const { return pin == p; }
 
     // Getters
     string getAccNo()  const { return accNo; }
@@ -184,7 +188,7 @@ public:
     // Serialise account header
     string serialiseHeader() const {
         ostringstream oss;
-        oss << accNo << "|" << name << "|"
+        oss << accNo << "|" << pin << "|" << name << "|"
             << fixed << setprecision(2) << balance << "|" << txnCounter;
         return oss.str();
     }
@@ -249,11 +253,12 @@ private:
             string tok;
             vector<string> parts;
             while (getline(ss, tok, '|')) parts.push_back(tok);
-            if (parts.size() < 4) continue;
+            if (parts.size() < 5) continue;
             string no  = parts[0];
-            string nm  = parts[1];
-            double bal = stod(parts[2]);
-            Account a(no, nm, bal);
+            string pin = parts[1];
+            string nm  = parts[2];
+            double bal = stod(parts[3]);
+            Account a(no, pin, nm, bal);
             accounts.push_back(a);
         }
 
@@ -288,6 +293,7 @@ public:
 
     void createAccount() {
         string accNo;
+        string pin1, pin2;
         string name;
         double initDep = 0;
 
@@ -304,12 +310,21 @@ public:
             cout << RED << "  ✗ Account #" << accNo << " already exists.\n" << RESET;
             return;
         }
+        
+        cout << "  Enter 4-Digit Secret PIN      : "; cin >> pin1;
+        if (pin1.length() != 4 || !all_of(pin1.begin(), pin1.end(), ::isdigit)) {
+            cout << RED << "  ✗ PIN must be exactly 4 digits.\n" << RESET;
+            return;
+        }
+        cout << "  Confirm 4-Digit Secret PIN    : "; cin >> pin2;
+        if (pin1 != pin2) { cout << RED << "  ✗ PINs do not match!\n" << RESET; return; }
+
         cin.ignore();
-        cout << "  Enter Account Holder Name : ";
+        cout << "  Enter Account Holder Name     : ";
         getline(cin, name);
         if (name.empty()) { cout << RED << "  ✗ Name cannot be empty.\n" << RESET; return; }
 
-        cout << "  Opening Deposit (0 for none) : ₹";
+        cout << "  Opening Deposit (0 for none)  : ₹";
         cin  >> initDep;
         if (cin.fail() || initDep < 0) {
             cin.clear();
@@ -317,11 +332,20 @@ public:
             initDep = 0;
         }
 
-        accounts.emplace_back(accNo, name, initDep);
+        accounts.emplace_back(accNo, pin1, name, initDep);
         save();
         cout << GREEN << "  ✓ Account #" << accNo << " created for "
              << name << " with balance ₹"
              << fixed << setprecision(2) << initDep << RESET << "\n";
+    }
+
+    // ── Helper to authenticate user before action ──
+    bool authenticateAccount(int idx) const {
+        string enteredPin;
+        cout << "  Enter Secret PIN     : "; cin >> enteredPin;
+        if (accounts[idx].verifyPin(enteredPin)) return true;
+        cout << RED << "  ✗ Incorrect PIN. Access denied.\n" << RESET;
+        return false;
     }
 
     void depositMenu() {
@@ -330,6 +354,8 @@ public:
         cout << "  Enter Account Number : "; cin >> accNo;
         int idx = findIndex(accNo);
         if (idx < 0) { cout << RED << "  ✗ Account not found.\n" << RESET; return; }
+        if (!authenticateAccount(idx)) return;
+        
         cout << "  Enter Amount         : ₹"; cin >> amount;
         if (accounts[idx].deposit(amount)) save();
     }
@@ -340,6 +366,8 @@ public:
         cout << "  Enter Account Number : "; cin >> accNo;
         int idx = findIndex(accNo);
         if (idx < 0) { cout << RED << "  ✗ Account not found.\n" << RESET; return; }
+        if (!authenticateAccount(idx)) return;
+        
         cout << "  Enter Amount         : ₹"; cin >> amount;
         if (accounts[idx].withdraw(amount)) save();
     }
@@ -350,6 +378,8 @@ public:
         cout << "  Enter Account Number : "; cin >> accNo;
         int idx = findIndex(accNo);
         if (idx < 0) { cout << RED << "  ✗ Account not found.\n" << RESET; return; }
+        if (!authenticateAccount(idx)) return;
+        
         accounts[idx].enquireBalance();
     }
 
@@ -359,6 +389,8 @@ public:
         cout << "  Enter Account Number : "; cin >> accNo;
         int idx = findIndex(accNo);
         if (idx < 0) { cout << RED << "  ✗ Account not found.\n" << RESET; return; }
+        if (!authenticateAccount(idx)) return;
+        
         accounts[idx].showLastTransactions(5);
     }
 
