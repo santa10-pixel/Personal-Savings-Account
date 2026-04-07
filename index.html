@@ -171,6 +171,48 @@ header p { color: var(--text-dim); font-size: .85rem; margin-top: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 
+/* ── Toast Notifications ────────────────────────────── */
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
+}
+.toast {
+  background: var(--surface2);
+  border-left: 4px solid var(--cyan);
+  color: var(--text);
+  padding: 14px 22px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.92rem;
+  animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  opacity: 0;
+  transform: translateX(120%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.toast-success { border-left-color: var(--green); }
+.toast-error { border-left-color: var(--red); }
+.toast-info { border-left-color: var(--blue); }
+.toast-warning { border-left-color: var(--yellow); }
+
+.toast-icon { font-size: 1.2rem; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(120%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(100%); }
+}
+
 /* ── Responsive ───────────────────────────────────────── */
 @media (max-width: 680px) {
   .app { grid-template-columns: 1fr; }
@@ -251,6 +293,25 @@ header p { color: var(--text-dim); font-size: .85rem; margin-top: 4px; }
 // ═══════════════════════════════════════════════════════
 //  JavaScript Mirror of the C++ Banking System
 // ═══════════════════════════════════════════════════════
+
+// ── Toast System ──────────────────────────────────────────
+function showToast(msg, type='info', icon='ℹ️') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<span class="toast-icon">${icon}</span> <span style="font-weight:600">${msg}</span>`;
+  container.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.animation = 'fadeOut 0.4s ease forwards';
+    setTimeout(() => toast.remove(), 400);
+  }, 3500);
+}
 
 // ── Data Structures ─────────────────────────────────────
 const bank = {
@@ -371,6 +432,7 @@ function handleCreateDep(v) {
     acc.history.push({ no: bank.txnGlobal, type:'DEPOSIT', amount, balAfter: amount, ts: now() });
   }
   print(span('c-green',`  ✓ Account #${stateData.no} created for ${stateData.name} with balance ₹${fmt(amount)}`));
+  showToast(`Account #${stateData.no} created successfully`, 'success', '🏦');
   updateSidebar();
   showMenu();
 }
@@ -397,6 +459,7 @@ function handleDepAmount(v) {
   bank.txnGlobal++;
   acc.history.push({ no: bank.txnGlobal, type:'DEPOSIT', amount: amt, balAfter: acc.balance, ts: now() });
   print(span('c-green',`  ✓ Deposited ₹${fmt(amt)}. New balance: ₹${fmt(acc.balance)}`));
+  showToast(`Deposited ₹${fmt(amt)} successfully`, 'success', '💵');
   updateSidebar();
   showMenu();
 }
@@ -422,12 +485,14 @@ function handleWdAmount(v) {
   if (isNaN(amt) || amt <= 0) { print(span('c-red','  ✗ Invalid amount.')); return showMenu(); }
   if (amt > acc.balance) {
     print(span('c-red',`  ✗ Insufficient funds! Balance: ₹${fmt(acc.balance)}`));
+    showToast(`Insufficient funds!`, 'error', '⚠️');
     return showMenu();
   }
   acc.balance -= amt;
   bank.txnGlobal++;
   acc.history.push({ no: bank.txnGlobal, type:'WITHDRAW', amount: amt, balAfter: acc.balance, ts: now() });
   print(span('c-yellow',`  ✓ Withdrawn ₹${fmt(amt)}. Remaining balance: ₹${fmt(acc.balance)}`));
+  showToast(`Withdrawn ₹${fmt(amt)} successfully`, 'success', '💸');
   updateSidebar();
   showMenu();
 }
@@ -610,6 +675,7 @@ function loadDemo() {
   a1.balance = 2800;
 
   print(span('c-magenta','  🎯  Demo data loaded! 4 accounts seeded.'));
+  showToast(`Demo Data Loaded!`, 'info', '🎯');
   updateSidebar();
   showMenu();
 }
