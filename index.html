@@ -39,7 +39,7 @@ body {
 
 /* ── Layout ───────────────────────────────────────────── */
 .app { width: 100%; max-width: 1200px; display: flex; gap: 24px; min-height: 600px; }
-aside { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 18px; }
+aside { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 18px; transition: 0.3s; }
 main { flex: 1; display: flex; flex-direction: column; gap: 18px; }
 
 /* ── Header ───────────────────────────────────────────── */
@@ -70,6 +70,7 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
   font-weight: 600;
   color: var(--cyan);
   font-size: 0.95rem;
+  display: flex; justify-content: space-between; align-items: center;
 }
 .panel-body { padding: 20px; }
 
@@ -119,6 +120,8 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
   background: transparent; border: 1px solid var(--border); color: var(--text);
 }
 .btn-outline:hover { background: var(--surface2); }
+.btn-danger { background: var(--surface2); color: var(--red); border: 1px solid var(--red); }
+.btn-danger:hover { background: rgba(248,113,113,0.1); }
 
 /* ── Views ────────────────────────────────────────────── */
 .view { display: none; animation: fadeIn 0.3s ease; }
@@ -170,11 +173,6 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
 @keyframes slideIn { from { opacity: 0; transform: translateX(120%); } to { opacity: 1; transform: translateX(0); } }
 @keyframes fadeOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
 
-/* ── Live Accounts Mini ─────────────────────────────── */
-.acc-mini { display: flex; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
-.acc-mini:last-child { border-bottom: none; }
-.acc-mini-no { color: var(--text-dim); }
-
 /* ── Responsive ───────────────────────────────────────── */
 @media (max-width: 768px) {
   .app { flex-direction: column; }
@@ -185,27 +183,34 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
 <body>
 
 <header>
-  <h1>💰 Personal Savings Account System</h1>
-  <p>C++ OOP Mini Project · Interactive Demo (JS Mirror)</p>
+  <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+    <div>
+      <h1>💰 Personal Savings Account System</h1>
+      <p>C++ OOP Mini Project · Interactive Demo (JS Mirror)</p>
+    </div>
+    <div id="user-header-info" style="display:none; text-align:right;">
+      <div style="font-size:0.85rem; color:var(--text-dim);">Logged in as</div>
+      <div id="user-header-name" style="font-weight:600; color:var(--cyan);"></div>
+    </div>
+  </div>
 </header>
 
 <div class="app">
   <!-- ── Sidebar ── -->
-  <aside>
+  <aside id="main-sidebar" style="display:none;">
     <div class="panel">
       <div class="menu-list" id="menuList">
         <div class="menu-item active" data-view="view-home"><span class="icon">🏠</span> Dashboard Home</div>
         <div class="menu-divider"></div>
-        <div class="menu-item" data-view="view-create"><span class="icon">🏦</span> Create Account</div>
         <div class="menu-item" data-view="view-deposit"><span class="icon">💵</span> Deposit</div>
         <div class="menu-item" data-view="view-withdraw"><span class="icon">💸</span> Withdraw</div>
         <div class="menu-item" data-view="view-balance"><span class="icon">🔍</span> Balance Enquiry</div>
-        <div class="menu-item" data-view="view-history"><span class="icon">📋</span> Last 5 Transactions</div>
+        <div class="menu-item" data-view="view-history"><span class="icon">📋</span> My Transactions</div>
         <div class="menu-divider"></div>
-        <div class="menu-item" data-view="view-reports"><span class="icon">📊</span> Reports & Stats</div>
-        <div class="menu-item" data-view="view-list"><span class="icon">📂</span> List All Accounts</div>
+        <div class="menu-item" data-view="view-reports"><span class="icon">📊</span> Admin Reports</div>
+        <div class="menu-item" data-view="view-list"><span class="icon">📂</span> Admin All Accounts</div>
         <div class="menu-divider"></div>
-        <div class="menu-item" data-cmd="demo"><span class="icon">🎯</span> Load Demo Data</div>
+        <div class="menu-item" onclick="handleLogout()" style="color:var(--red)"><span class="icon">🚪</span> Log Out</div>
       </div>
     </div>
   </aside>
@@ -214,22 +219,39 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
   <main>
     <div class="panel" style="flex:1;">
       
-      <!-- Home View -->
-      <div id="view-home" class="view active">
-        <div class="panel-header">Dashboard Home</div>
-        <div class="panel-body" style="text-align: center; padding: 60px 20px;">
-          <h2 style="color:var(--cyan); font-size:1.8rem; margin-bottom:10px;">Welcome to Banking System</h2>
-          <p style="color:var(--text-dim); margin-bottom: 40px; font-size:1.05rem;">Select an option from the sidebar to begin.</p>
-          <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
-            <button class="btn" onclick="document.querySelector('[data-view=\'view-create\']').click()">Get Started: Create Account</button>
-            <button class="btn btn-outline" onclick="document.querySelector('[data-view=\'view-deposit\']').click()">Make a Deposit</button>
+      <!-- Login View -->
+      <div id="view-login" class="view active">
+        <div class="panel-header">User Login</div>
+        <div class="panel-body" style="display:flex; flex-direction:column; align-items:center; padding-top:60px;">
+          <h2 style="font-size:1.6rem; margin-bottom:10px;">Welcome Back!</h2>
+          <p style="color:var(--text-dim); margin-bottom:30px;">Please enter your 16-digit Account ID to continue.</p>
+          
+          <form onsubmit="handleLogin(event)" style="width:100%; max-width:400px;">
+            <div class="form-group">
+              <input type="text" id="login-accno" class="form-control" placeholder="16-Digit Account ID" minlength="16" maxlength="16" pattern="\d{16}" required style="text-align:center; font-size:1.2rem; letter-spacing:2px;">
+            </div>
+            <button type="submit" class="btn" style="width:100%;">Secure Login</button>
+          </form>
+
+          <div id="login-error-box" style="display:none; margin-top:20px; padding:20px; background:rgba(248,113,113,0.1); border:1px solid var(--red); border-radius:8px; width:100%; max-width:400px; text-align:center;">
+            <div style="color:var(--red); font-weight:600; margin-bottom:10px;">✗ Account Not Found</div>
+            <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:15px;">It looks like you don't have an account with us yet.</p>
+            <button class="btn btn-outline" onclick="goToCreateAccount()">Create New Account</button>
+          </div>
+          
+          <!-- Quick Tools for testing -->
+          <div style="margin-top:60px; padding-top:20px; border-top:1px solid var(--border); width:100%; max-width:400px; text-align:center;">
+            <button class="btn btn-outline" style="font-size:0.8rem; padding:6px 12px;" onclick="loadDemo()">🎯 Load Demo Sandbox Data</button>
           </div>
         </div>
       </div>
 
       <!-- Create Account View -->
       <div id="view-create" class="view">
-        <div class="panel-header">Create New Account</div>
+        <div class="panel-header">
+          <span>Create New Account</span>
+          <button class="btn-outline" style="font-size:0.8rem; padding:4px 10px; border-radius:4px; cursor:pointer;" onclick="goToLogin()">← Back to Login</button>
+        </div>
         <div class="panel-body">
           <form id="form-create" onsubmit="handleCreate(event)">
             <div class="form-group">
@@ -244,8 +266,28 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
               <label>Opening Deposit (₹) - Optional</label>
               <input type="number" id="create-dep" class="form-control" min="0" step="0.01" placeholder="0.00">
             </div>
-            <button type="submit" class="btn">Create Account</button>
+            <button type="submit" class="btn">Create Account & Login</button>
           </form>
+        </div>
+      </div>
+
+      <!-- Home View (Logged in) -->
+      <div id="view-home" class="view">
+        <div class="panel-header">Dashboard Home</div>
+        <div class="panel-body" style="text-align: center; padding: 40px 20px;">
+          <h2 id="home-welcome-msg" style="color:var(--cyan); font-size:1.8rem; margin-bottom:10px;">Welcome</h2>
+          <p style="color:var(--text-dim); margin-bottom: 20px; font-size:1.05rem;">Account Number: <span id="home-acc-display" style="color:var(--text); font-family:monospace;"></span></p>
+          
+          <div class="balance-display" style="max-width:500px; margin:0 auto 40px;">
+              <div class="balance-label">Current Available Balance</div>
+              <div id="home-balance" class="balance-amount text-green">₹0.00</div>
+          </div>
+
+          <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+            <button class="btn" onclick="document.querySelector('[data-view=\'view-deposit\']').click()">Make a Deposit</button>
+            <button class="btn btn-outline" onclick="document.querySelector('[data-view=\'view-withdraw\']').click()">Withdraw Funds</button>
+            <button class="btn btn-outline" onclick="document.querySelector('[data-view=\'view-history\']').click()">View History</button>
+          </div>
         </div>
       </div>
 
@@ -254,10 +296,6 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
         <div class="panel-header">Deposit Funds</div>
         <div class="panel-body">
           <form id="form-deposit" onsubmit="handleDeposit(event)">
-            <div class="form-group">
-              <label>Select Account</label>
-              <select id="dep-accno" class="form-control" required></select>
-            </div>
             <div class="form-group">
               <label>Amount to Deposit (₹)</label>
               <input type="number" id="dep-amount" class="form-control" min="0.01" step="0.01" required>
@@ -273,10 +311,6 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
         <div class="panel-body">
           <form id="form-withdraw" onsubmit="handleWithdraw(event)">
             <div class="form-group">
-              <label>Select Account</label>
-              <select id="wd-accno" class="form-control" required></select>
-            </div>
-            <div class="form-group">
               <label>Amount to Withdraw (₹)</label>
               <input type="number" id="wd-amount" class="form-control" min="0.01" step="0.01" required>
             </div>
@@ -289,15 +323,8 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
       <div id="view-balance" class="view">
         <div class="panel-header">Balance Enquiry</div>
         <div class="panel-body">
-          <div class="form-group" style="display:-webkit-box; align-items:flex-end; gap:10px;">
-            <div style="flex:1; max-width:400px;">
-              <label>Select Account</label>
-              <select id="bal-accno" class="form-control" style="width:100%"></select>
-            </div>
-            <button class="btn" onclick="handleBalance()" style="margin:0;">Check</button>
-          </div>
-          <div id="bal-result" style="display:none;">
-            <div class="balance-display">
+          <div id="bal-result">
+            <div class="balance-display" style="max-width:500px;">
               <div class="balance-label">Current Balance</div>
               <div id="bal-disp-amount" class="balance-amount text-green">₹0.00</div>
               <div id="bal-disp-acc" class="balance-acc"></div>
@@ -308,16 +335,9 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
 
       <!-- History View -->
       <div id="view-history" class="view">
-        <div class="panel-header">Last 5 Transactions</div>
+        <div class="panel-header">My Last 5 Transactions</div>
         <div class="panel-body">
-          <div class="form-group" style="display:-webkit-box; align-items:flex-end; gap:10px;">
-            <div style="flex:1; max-width:400px;">
-              <label>Select Account</label>
-              <select id="hist-accno" class="form-control" style="width:100%"></select>
-            </div>
-            <button class="btn" onclick="handleHistory()" style="margin:0;">View History</button>
-          </div>
-          <div id="hist-result" style="display:none; margin-top:20px;">
+          <div id="hist-result">
             <table class="data-table">
               <thead>
                 <tr>
@@ -411,6 +431,8 @@ const bank = {
   txnGlobal: 0,
 };
 
+let loggedInAccount = null;
+
 function findAcc(no) { return bank.accounts.find(a => a.accNo === no); }
 function now() { return new Date().toISOString().replace('T',' ').substring(0,19); }
 function fmt(n) { return parseFloat(n).toFixed(2); }
@@ -420,52 +442,80 @@ function escHtml(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;'
 const views = document.querySelectorAll('.view');
 const menuItems = document.querySelectorAll('.menu-item');
 
+function switchView(viewId) {
+  views.forEach(v => v.classList.remove('active'));
+  const target = document.getElementById(viewId);
+  if(target) target.classList.add('active');
+  
+  menuItems.forEach(m => m.classList.toggle('active', m.dataset.view === viewId));
+
+  if(viewId === 'view-reports') generateReports();
+  if(viewId === 'view-list') generateListAll();
+  if(viewId === 'view-home') updateHomeView();
+  if(viewId === 'view-balance') handleBalance();
+  if(viewId === 'view-history') handleHistory();
+}
+
 menuItems.forEach(item => {
   item.addEventListener('click', () => {
-    const viewId = item.dataset.view;
-    const cmd = item.dataset.cmd;
-    
-    if (cmd === 'demo') {
-      loadDemo();
-      return;
-    }
-    
-    // Switch Active Menu
-    menuItems.forEach(m => m.classList.remove('active'));
-    item.classList.add('active');
-    
-    // Switch View
-    views.forEach(v => v.classList.remove('active'));
-    const target = document.getElementById(viewId);
-    if(target) {
-      target.classList.add('active');
-      refreshSelects();
-      if(viewId === 'view-reports') generateReports();
-      if(viewId === 'view-list') generateListAll();
-    }
+    if(!item.dataset.view) return; // For logout or custom actions
+    switchView(item.dataset.view);
   });
 });
 
-function refreshSelects() {
-  const selects = ['dep-accno', 'wd-accno', 'bal-accno', 'hist-accno'];
-  selects.forEach(id => {
-    const el = document.getElementById(id);
-    if(!el) return;
-    const prev = el.value;
-    el.innerHTML = '<option value="" disabled selected>Select an account...</option>';
-    bank.accounts.forEach(a => {
-      el.innerHTML += `<option value="${a.accNo}">${a.accNo} - ${escHtml(a.name)}</option>`;
-    });
-    if(prev && findAcc(prev)) el.value = prev;
-  });
-}
+function renderAppState() {
+  const sidebar = document.getElementById('main-sidebar');
+  const uiInfo = document.getElementById('user-header-info');
+  const uiName = document.getElementById('user-header-name');
 
-function updateSidebar() {
-  // Sidebar accounts removed for privacy, just refresh selects
-  refreshSelects();
+  if(loggedInAccount === null) {
+    sidebar.style.display = 'none';
+    uiInfo.style.display = 'none';
+    switchView('view-login');
+  } else {
+    sidebar.style.display = 'flex';
+    uiInfo.style.display = 'block';
+    const acc = findAcc(loggedInAccount);
+    if(acc) uiName.textContent = escHtml(acc.name);
+    switchView('view-home');
+  }
 }
 
 // ── Handlers ────────────────────────────────────────────
+
+function handleLogin(e) {
+  e.preventDefault();
+  const accNo = document.getElementById('login-accno').value.trim();
+  const errorBox = document.getElementById('login-error-box');
+
+  const acc = findAcc(accNo);
+  if(acc) {
+    // Found it! Login.
+    errorBox.style.display = 'none';
+    document.getElementById('login-accno').value = '';
+    loggedInAccount = acc.accNo;
+    showToast(`Welcome back, ${acc.name}!`, 'success', '👋');
+    renderAppState();
+  } else {
+    // Not found
+    errorBox.style.display = 'block';
+  }
+}
+
+function handleLogout() {
+  loggedInAccount = null;
+  showToast('Logged out successfully', 'info', '🚪');
+  renderAppState();
+}
+
+function goToCreateAccount() {
+  document.getElementById('login-error-box').style.display = 'none';
+  switchView('view-create');
+}
+
+function goToLogin() {
+  switchView('view-login');
+}
 
 function handleCreate(e) {
   e.preventDefault();
@@ -490,36 +540,45 @@ function handleCreate(e) {
     acc.history.push({ no: bank.txnGlobal, type:'DEPOSIT', amount, balAfter: amount, ts: now() });
   }
 
-  showToast(`Account #${accNo} created successfully`, 'success', '🏦');
+  showToast(`Account #${accNo} created. Logging you in!`, 'success', '🏦');
   document.getElementById('form-create').reset();
-  updateSidebar();
+  
+  // Auto login
+  loggedInAccount = accNo;
+  renderAppState();
+}
+
+function updateHomeView() {
+  if(!loggedInAccount) return;
+  const acc = findAcc(loggedInAccount);
+  document.getElementById('home-welcome-msg').textContent = `Hello, ${escHtml(acc.name)}`;
+  document.getElementById('home-acc-display').textContent = acc.accNo;
+  document.getElementById('home-balance').textContent = `₹${fmt(acc.balance)}`;
 }
 
 function handleDeposit(e) {
   e.preventDefault();
-  const accNo = document.getElementById('dep-accno').value;
+  if(!loggedInAccount) return;
   const amt = parseFloat(document.getElementById('dep-amount').value);
-  if(!accNo) return showToast('Please select an account', 'error', '⚠️');
   if(isNaN(amt) || amt <= 0) return showToast('Invalid amount', 'error', '⚠️');
 
-  const acc = findAcc(accNo);
+  const acc = findAcc(loggedInAccount);
   acc.balance += amt;
   bank.txnGlobal++;
   acc.history.push({ no: bank.txnGlobal, type:'DEPOSIT', amount: amt, balAfter: acc.balance, ts: now() });
   
   showToast(`Deposited ₹${fmt(amt)} successfully`, 'success', '💵');
   document.getElementById('form-deposit').reset();
-  updateSidebar();
+  switchView('view-home'); // go back to home to see balance
 }
 
 function handleWithdraw(e) {
   e.preventDefault();
-  const accNo = document.getElementById('wd-accno').value;
+  if(!loggedInAccount) return;
   const amt = parseFloat(document.getElementById('wd-amount').value);
-  if(!accNo) return showToast('Please select an account', 'error', '⚠️');
   if(isNaN(amt) || amt <= 0) return showToast('Invalid amount', 'error', '⚠️');
 
-  const acc = findAcc(accNo);
+  const acc = findAcc(loggedInAccount);
   if (amt > acc.balance) {
     return showToast(`Insufficient funds! Balance is ₹${fmt(acc.balance)}`, 'error', '⚠️');
   }
@@ -530,24 +589,19 @@ function handleWithdraw(e) {
   
   showToast(`Withdrawn ₹${fmt(amt)} successfully`, 'success', '💸');
   document.getElementById('form-withdraw').reset();
-  updateSidebar();
+  switchView('view-home');
 }
 
 function handleBalance() {
-  const accNo = document.getElementById('bal-accno').value;
-  if(!accNo) return showToast('Please select an account', 'error', '⚠️');
-  const acc = findAcc(accNo);
-  const res = document.getElementById('bal-result');
+  if(!loggedInAccount) return;
+  const acc = findAcc(loggedInAccount);
   document.getElementById('bal-disp-amount').textContent = `₹${fmt(acc.balance)}`;
-  document.getElementById('bal-disp-acc').innerHTML = `Account: #${acc.accNo} <br> <span style="color:var(--text-dim)">${escHtml(acc.name)}</span>`;
-  res.style.display = 'block';
-  showToast(`Checked balance for ${acc.name}`, 'info', '🔍');
+  document.getElementById('bal-disp-acc').innerHTML = `Account: #${acc.accNo}`;
 }
 
 function handleHistory() {
-  const accNo = document.getElementById('hist-accno').value;
-  if(!accNo) return showToast('Please select an account', 'error', '⚠️');
-  const acc = findAcc(accNo);
+  if(!loggedInAccount) return;
+  const acc = findAcc(loggedInAccount);
   const tb = document.getElementById('hist-table-body');
   const slice = acc.history.slice(-5).reverse();
   
@@ -565,8 +619,6 @@ function handleHistory() {
       </tr>`;
     }).join('');
   }
-  document.getElementById('hist-result').style.display = 'block';
-  showToast(`Loaded history for ${acc.name}`, 'info', '📋');
 }
 
 function generateReports() {
@@ -637,19 +689,12 @@ function loadDemo() {
   bank.txnGlobal++; a1.history.push({ no:bank.txnGlobal, type:'DEPOSIT',  amount:800, balAfter:2800, ts:'2026-03-15 10:05:00' });
   a1.balance = 2800;
 
-  showToast(`Demo Data Loaded!`, 'info', '🎯');
-  updateSidebar();
-  
-  // Refresh active view
-  const activeView = document.querySelector('.view.active');
-  if(activeView) {
-    if(activeView.id === 'view-reports') generateReports();
-    if(activeView.id === 'view-list') generateListAll();
-  }
+  showToast(`Sandbox Data Loaded! Try logging into '1000000000001001'`, 'info', '🎯');
+  goToLogin();
 }
 
 // Boot
-updateSidebar();
+renderAppState();
 </script>
 </body>
 </html>
