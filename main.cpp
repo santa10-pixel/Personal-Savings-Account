@@ -1,7 +1,6 @@
 /*
  * ============================================================
  *   Mini Banking System – "Personal Savings Account"
- *   DA2 C++ OOP Mini Project
  *   Classes : Transaction | Account | BankSystem
  * ============================================================
  */
@@ -108,7 +107,7 @@ public:
 // ─────────────────────────────────────────────────────────────
 class Account {
 private:
-    int    accNo;
+    string accNo;
     string name;
     double balance;
     vector<Transaction> history;
@@ -116,11 +115,11 @@ private:
 
 public:
     // New account constructor
-    Account(int no, const string& n, double initBalance = 0.0)
+    Account(const string& no, const string& n, double initBalance = 0.0)
         : accNo(no), name(n), balance(initBalance), txnCounter(0) {}
 
     // Getters
-    int    getAccNo()  const { return accNo; }
+    string getAccNo()  const { return accNo; }
     string getName()   const { return name; }
     double getBalance()const { return balance; }
 
@@ -209,14 +208,14 @@ private:
     const string TXN_FILE = "transactions.dat";
 
     // Find account index by AccNo (-1 if not found)
-    int findIndex(int accNo) const {
+    int findIndex(const string& accNo) const {
         for (int i = 0; i < (int)accounts.size(); ++i)
             if (accounts[i].getAccNo() == accNo) return i;
         return -1;
     }
 
     // Check if AccNo already exists
-    bool exists(int accNo) const { return findIndex(accNo) != -1; }
+    bool exists(const string& accNo) const { return findIndex(accNo) != -1; }
 
     // ── File I/O ─────────────────────────────────────────────
 
@@ -251,7 +250,7 @@ private:
             vector<string> parts;
             while (getline(ss, tok, '|')) parts.push_back(tok);
             if (parts.size() < 4) continue;
-            int    no  = stoi(parts[0]);
+            string no  = parts[0];
             string nm  = parts[1];
             double bal = stod(parts[2]);
             Account a(no, nm, bal);
@@ -268,7 +267,7 @@ private:
             vector<string> parts;
             while (getline(ss, tok, '|')) parts.push_back(tok);
             if (parts.size() < 6) continue;
-            int    accNo  = stoi(parts[0]);
+            string accNo  = parts[0];
             int    txnNo  = stoi(parts[1]);
             string type   = parts[2];
             double amt    = stod(parts[3]);
@@ -288,17 +287,17 @@ public:
     // ── Operations ───────────────────────────────────────────
 
     void createAccount() {
-        int accNo;
+        string accNo;
         string name;
         double initDep = 0;
 
         cout << CYAN << "\n  ┌─ Create New Account ─────────────────┐\n" << RESET;
-        cout << "  Enter Account Number : ";
+        cout << "  Enter 16-Digit Account Number : ";
         cin  >> accNo;
-        if (cin.fail() || accNo <= 0) {
+        if (accNo.length() != 16 || !all_of(accNo.begin(), accNo.end(), ::isdigit)) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << RED << "  ✗ Invalid account number.\n" << RESET;
+            cout << RED << "  ✗ Account number must be exactly 16 digits.\n" << RESET;
             return;
         }
         if (exists(accNo)) {
@@ -326,7 +325,7 @@ public:
     }
 
     void depositMenu() {
-        int accNo; double amount;
+        string accNo; double amount;
         cout << CYAN << "\n  ┌─ Deposit ────────────────────────────┐\n" << RESET;
         cout << "  Enter Account Number : "; cin >> accNo;
         int idx = findIndex(accNo);
@@ -336,7 +335,7 @@ public:
     }
 
     void withdrawMenu() {
-        int accNo; double amount;
+        string accNo; double amount;
         cout << CYAN << "\n  ┌─ Withdraw ───────────────────────────┐\n" << RESET;
         cout << "  Enter Account Number : "; cin >> accNo;
         int idx = findIndex(accNo);
@@ -346,7 +345,7 @@ public:
     }
 
     void balanceEnquiry() {
-        int accNo;
+        string accNo;
         cout << CYAN << "\n  ┌─ Balance Enquiry ────────────────────┐\n" << RESET;
         cout << "  Enter Account Number : "; cin >> accNo;
         int idx = findIndex(accNo);
@@ -355,7 +354,7 @@ public:
     }
 
     void viewTransactions() {
-        int accNo;
+        string accNo;
         cout << CYAN << "\n  ┌─ Transaction History ────────────────┐\n" << RESET;
         cout << "  Enter Account Number : "; cin >> accNo;
         int idx = findIndex(accNo);
@@ -395,7 +394,7 @@ public:
         cout << CYAN << "\n  All Accounts:\n" << RESET;
         cout << DIM << "  " << string(50, '-') << RESET << "\n";
         for (const auto& a : accounts) {
-            cout << BLUE << "  #" << setw(6) << a.getAccNo() << RESET
+            cout << BLUE << "  #" << setw(16) << a.getAccNo() << RESET
                  << "  " << setw(20) << left << a.getName() << right
                  << GREEN << "  ₹" << fixed << setprecision(2)
                  << a.getBalance() << RESET << "\n";
