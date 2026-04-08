@@ -332,6 +332,11 @@ header p { color: var(--text-dim); font-size: 0.95rem; margin-top: 4px; font-wei
             <button type="submit" class="btn" style="width:100%;">Secure Login</button>
           </form>
 
+          <div style="margin-top: 30px; text-align: center; width:100%; max-width:400px; padding-top: 20px; border-top: 1px solid var(--glass-bdr);">
+            <p style="color: var(--text-dim); font-size: 0.95rem; margin-bottom: 12px;">Don't have an account?</p>
+            <button type="button" class="btn btn-outline" style="width:100%;" onclick="goToCreateAccount()">Open New Account (Sign Up)</button>
+          </div>
+
           <div id="login-error-box" style="display:none; margin-top:20px; padding:20px; background:rgba(248,113,113,0.1); border:1px solid var(--red); border-radius:8px; width:100%; max-width:400px; text-align:center;">
             <div style="color:var(--red); font-weight:600; margin-bottom:10px;">✗ Account Not Found</div>
             <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:15px;">It looks like you don't have an account with us yet.</p>
