@@ -62,6 +62,7 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 .panel-header {
   padding: 16px 20px;
@@ -80,13 +81,19 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
   display: flex; align-items: center; gap: 12px;
   padding: 14px 20px; cursor: pointer;
   font-size: 0.9rem; font-weight: 500; color: var(--text-dim);
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   border-left: 3px solid transparent;
 }
-.menu-item:hover { background: var(--surface2); color: var(--text); }
+.menu-item:hover { 
+  background: var(--surface2); 
+  color: var(--cyan); 
+  transform: translateX(6px); 
+}
 .menu-item.active {
   background: var(--focus);
-  color: var(--cyan); border-left-color: var(--cyan);
+  color: var(--cyan); 
+  border-left-color: var(--cyan);
+  transform: translateX(4px);
 }
 .menu-item .icon { font-size: 1.1rem; width: 24px; text-align: center; }
 .menu-divider { height: 1px; background: var(--border); margin: 4px 0; }
@@ -102,20 +109,20 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
   background: var(--bg); border: 1px solid var(--border);
   border-radius: 8px; padding: 10px 14px;
   color: var(--text); font-family: 'Inter', sans-serif;
-  font-size: 0.95rem; transition: border-color 0.2s;
+  font-size: 0.95rem; transition: all 0.3s;
 }
-.form-control:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px var(--focus); }
+.form-control:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 15px rgba(34, 211, 238, 0.2); background: rgba(34, 211, 238, 0.05); }
 .form-control::placeholder { color: var(--border); }
 
 .btn {
   background: linear-gradient(135deg, var(--cyan), var(--blue));
   border: none; border-radius: 8px; padding: 10px 24px;
   color: #000; font-weight: 600; font-size: 0.9rem;
-  cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+  cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   margin-top: 10px;
 }
-.btn:hover { opacity: 0.9; transform: translateY(-1px); }
-.btn:active { transform: translateY(0); }
+.btn:hover { opacity: 1; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34, 211, 238, 0.35); }
+.btn:active { transform: translateY(1px); box-shadow: 0 2px 10px rgba(34, 211, 238, 0.2); }
 .btn-outline {
   background: transparent; border: 1px solid var(--border); color: var(--text);
 }
@@ -124,9 +131,9 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
 .btn-danger:hover { background: rgba(248,113,113,0.1); }
 
 /* ── Views ────────────────────────────────────────────── */
-.view { display: none; animation: fadeIn 0.3s ease; }
+.view { display: none; animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .view.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideUpFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ── Tables ───────────────────────────────────────────── */
 .data-table {
@@ -135,7 +142,8 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
 }
 .data-table th, .data-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
 .data-table th { color: var(--text-dim); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
-.data-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+.data-table tbody tr { transition: background 0.2s, transform 0.2s; }
+.data-table tbody tr:hover { background: rgba(34,211,238,0.05); transform: scale(1.01); }
 .text-right { text-align: right !important; }
 .text-center { text-align: center !important; }
 
@@ -152,7 +160,12 @@ header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 20px; }
 .stat-card {
   background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
-  padding: 16px; text-align: center;
+  padding: 16px; text-align: center; transition: all 0.3s;
+}
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(34,211,238,0.15);
+  border-color: rgba(34,211,238,0.4);
 }
 .stat-card-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
 .stat-card-value { font-size: 1.5rem; font-weight: 700; margin-top: 8px; color: var(--text); }
