@@ -141,8 +141,14 @@ void getDoubleInput(double& out) {
             s.erase(s.find_last_not_of(" \t\n\r\f\v") + 1);
         }
         if (s.empty()) { cout << RED << "  ✗ Please enter a valid amount: " << RESET; continue; }
-        try { out = stod(s); break; }
-        catch (...) { cout << RED << "  ✗ Invalid amount. Please try again: " << RESET; }
+        
+        char* endptr = nullptr;
+        out = strtod(s.c_str(), &endptr);
+        if (endptr == s.c_str() || (*endptr != '\0' && !isspace((unsigned char)*endptr))) { 
+            cout << RED << "  ✗ Invalid amount. Please try again: " << RESET;
+        } else {
+            break;
+        }
     }
 }
 
@@ -339,7 +345,7 @@ private:
             string tok; vector<string> parts;
             while (getline(ss, tok, '|')) parts.push_back(tok);
             if (parts.size() < 5) continue;
-            Account a(parts[0], parts[1], parts[2], stod(parts[3]));
+            Account a(parts[0], parts[1], parts[2], atof(parts[3].c_str()));
             accounts.push_back(a);
         }
 
@@ -353,7 +359,7 @@ private:
             if (parts.size() < 6) continue;
             int idx = findIndex(parts[0]);
             if (idx >= 0) {
-                accounts[idx].addTransaction( Transaction(stoi(parts[1]), parts[2], stod(parts[3]), stod(parts[4]), parts[5]) );
+                accounts[idx].addTransaction( Transaction(atoi(parts[1].c_str()), parts[2], atof(parts[3].c_str()), atof(parts[4].c_str()), parts[5]) );
             }
         }
     }
