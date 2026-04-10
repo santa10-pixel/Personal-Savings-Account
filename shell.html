@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clinic Register System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #050810; --panel: rgba(15, 23, 42, 0.7); --border: rgba(0, 240, 255, 0.15); --cyan: #00f0ff; }
+    body { background-color: var(--bg); color: #f8fafc; font-family: 'Outfit', sans-serif; margin: 0; padding: 40px 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; position: relative; }
+    body::before, body::after { content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; filter: blur(140px); opacity: 0.5; pointer-events: none; }
+    body::before { background: radial-gradient(circle at 10% 40%, rgba(59, 130, 246, 0.6), transparent 50%); animation: floatBackground 20s ease-in-out infinite alternate; }
+    body::after { background: radial-gradient(circle at 90% 60%, rgba(217, 70, 239, 0.5), transparent 50%); animation: floatBackground 25s ease-in-out infinite alternate-reverse; }
+    @keyframes floatBackground { 0% { transform: scale(1) translate(0, 0); } 50% { transform: scale(1.2) translate(5%, 5%); } 100% { transform: scale(0.9) translate(-5%, -5%); } }
+    
+    .terminal-container { width: 100%; max-width: 900px; background: var(--panel); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1); overflow: hidden; display: flex; flex-direction: column; height: 85vh; transition: 0.3s; }
+    .terminal-container:hover { box-shadow: 0 15px 60px rgba(0, 240, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+    
+    .terminal-header { padding: 18px 24px; border-bottom: 1px solid var(--border); background: linear-gradient(90deg, rgba(0, 240, 255, 0.05), transparent); display: flex; justify-content: space-between; align-items: center; }
+    .window-controls { display: flex; gap: 8px; } .dot { width: 14px; height: 14px; border-radius: 50%; } .dot.red { background: #ef4444; } .dot.yellow { background: #f59e0b; } .dot.green { background: #10b981; }
+    .header-title { font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; background: linear-gradient(135deg, #ffffff, var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    #output { flex: 1; padding: 25px 30px; margin: 0; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 1.05rem; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; color: #cbd5e1; scroll-behavior: smooth; }
+    
+    /* Custom scrollbar */
+    #output::-webkit-scrollbar { width: 8px; }
+    #output::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+    #output::-webkit-scrollbar-thumb { background: rgba(0,240,255,0.2); border-radius: 4px; }
+    #output::-webkit-scrollbar-thumb:hover { background: rgba(0,240,255,0.4); }
+    
+    .input-bar { padding: 18px 30px; background: rgba(0,0,0,0.5); border-top: 1px solid var(--border); display: flex; align-items: center; gap: 15px; }
+    .prompt-icon { color: var(--cyan); font-weight: bold; font-size: 1.3rem; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    
+    #cmdLine { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-family: 'Fira Code', monospace; font-size: 1.1rem; caret-color: var(--cyan); text-shadow: 0 0 5px rgba(255,255,255,0.2); }
+    #cmdLine::placeholder { color: rgba(255,255,255,0.2); font-style: italic; }
+    
+    .c-30 { color: #000; }  .c-31 { color: #fe5f55; text-shadow: 0 0 8px rgba(254,95,85,0.4); } .c-32 { color: #34d399; text-shadow: 0 0 8px rgba(52,211,153,0.4); } .c-33 { color: #fcd34d; text-shadow: 0 0 8px rgba(252,211,77,0.4); } .c-34 { color: #60a5fa; } .c-35 { color: #e879f9; text-shadow: 0 0 8px rgba(232,121,249,0.4); } .c-36 { color: #22d3ee; text-shadow: 0 0 8px rgba(34,211,238,0.4); } .c-37 { color: #f8fafc; } .c-90 { color: #94a3b8; color: rgba(148, 163, 184, 0.8); } .c-91 { color: #f87171; } .c-92 { color: #34d399; } .c-93 { color: #fbbf24; } .c-94 { color: #60a5fa; } .c-95 { color: #e879f9; } .c-96 { color: #22d3ee; } .c-1 { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="terminal-container" onclick="document.getElementById('cmdLine').focus()">
+    <div class="terminal-header">
+      <div class="window-controls"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+      <div class="header-title">🏦 BANK SAVINGS PRO <span style="font-size:0.8em; opacity:0.6; margin-left:10px;">[ ONLINE HUB ]</span></div>
+      <div style="width: 58px;"></div>
+    </div>
+    <div id="output"></div>
+    <div class="input-bar">
+      <div class="prompt-icon">❯</div>
+      <input type="text" id="cmdLine" autocomplete="off" autofocus placeholder="Awaiting Input..." spellcheck="false">
+    </div>
+  </div>
+
+  <script>
+    const outputElement = document.getElementById('output');
+    const inputElement = document.getElementById('cmdLine');
+    window.inputBuffer = [];
+
+    function parseANSI(text) {
+      if(!text) return '';
+      text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      let res = '';
+      const parts = text.split(/\x1b\[/);
+      res += parts[0];
+      let activeSpans = 0;
+      for(let i=1; i<parts.length; i++) {
+        const m = parts[i].match(/^(\d+(?:;\d+)*)m(.*)/si);
+        if(m) {
+          const codes = m[1].split(';');
+          if(codes.includes('0')) { res += '</span>'.repeat(activeSpans); activeSpans = 0; }
+          else { res += `<span class="${codes.map(c=>'c-'+c).join(' ')}">`; activeSpans++; }
+          res += m[2] || '';
+        } else { res += parts[i]; }
+      }
+      res += '</span>'.repeat(activeSpans);
+      return res;
+    }
+
+    // This is explicitly called by C++ to bypass Emscripten's line-buffering
+    window.cprint = function(text) {
+        const span = document.createElement('span');
+        span.innerHTML = parseANSI(text);
+        outputElement.appendChild(span);
+        outputElement.scrollTop = outputElement.scrollHeight;
+    };
+
+    var Module = {
+      print: function() { /* Ignored, using cprint exclusively */ },
+      printErr: function(text) { console.error(text); }
+    };
+
+    inputElement.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        const value = inputElement.value;
+        if(value != null) {
+          window.inputBuffer.push(value);
+          // Echo beautifully
+          window.cprint('\x1b[90m' + value + '\x1b[0m\n');
+          inputElement.value = '';
+        }
+      }
+    });
+
+    document.addEventListener("click", () => {
+        inputElement.focus();
+    });
+  </script>
+  {{{ SCRIPT }}}
+</body>
+</html>
