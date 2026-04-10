@@ -1,111 +1,1321 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
   <meta charset="UTF-8">
-  <title>Clinic Register System</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Savings Account – Mini Banking System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #050810; --panel: rgba(15, 23, 42, 0.7); --border: rgba(0, 240, 255, 0.15); --cyan: #00f0ff; }
-    body { background-color: var(--bg); color: #f8fafc; font-family: 'Outfit', sans-serif; margin: 0; padding: 40px 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; position: relative; }
-    body::before, body::after { content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; filter: blur(140px); opacity: 0.5; pointer-events: none; }
-    body::before { background: radial-gradient(circle at 10% 40%, rgba(59, 130, 246, 0.6), transparent 50%); animation: floatBackground 20s ease-in-out infinite alternate; }
-    body::after { background: radial-gradient(circle at 90% 60%, rgba(217, 70, 239, 0.5), transparent 50%); animation: floatBackground 25s ease-in-out infinite alternate-reverse; }
-    @keyframes floatBackground { 0% { transform: scale(1) translate(0, 0); } 50% { transform: scale(1.2) translate(5%, 5%); } 100% { transform: scale(0.9) translate(-5%, -5%); } }
-    
-    .terminal-container { width: 100%; max-width: 900px; background: var(--panel); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1); overflow: hidden; display: flex; flex-direction: column; height: 85vh; transition: 0.3s; }
-    .terminal-container:hover { box-shadow: 0 15px 60px rgba(0, 240, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
-    
-    .terminal-header { padding: 18px 24px; border-bottom: 1px solid var(--border); background: linear-gradient(90deg, rgba(0, 240, 255, 0.05), transparent); display: flex; justify-content: space-between; align-items: center; }
-    .window-controls { display: flex; gap: 8px; } .dot { width: 14px; height: 14px; border-radius: 50%; } .dot.red { background: #ef4444; } .dot.yellow { background: #f59e0b; } .dot.green { background: #10b981; }
-    .header-title { font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; background: linear-gradient(135deg, #ffffff, var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    
-    #output { flex: 1; padding: 25px 30px; margin: 0; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 1.05rem; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; color: #cbd5e1; scroll-behavior: smooth; }
-    
-    /* Custom scrollbar */
-    #output::-webkit-scrollbar { width: 8px; }
-    #output::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
-    #output::-webkit-scrollbar-thumb { background: rgba(0,240,255,0.2); border-radius: 4px; }
-    #output::-webkit-scrollbar-thumb:hover { background: rgba(0,240,255,0.4); }
-    
-    .input-bar { padding: 18px 30px; background: rgba(0,0,0,0.5); border-top: 1px solid var(--border); display: flex; align-items: center; gap: 15px; }
-    .prompt-icon { color: var(--cyan); font-weight: bold; font-size: 1.3rem; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-    
-    #cmdLine { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-family: 'Fira Code', monospace; font-size: 1.1rem; caret-color: var(--cyan); text-shadow: 0 0 5px rgba(255,255,255,0.2); }
-    #cmdLine::placeholder { color: rgba(255,255,255,0.2); font-style: italic; }
-    
-    .c-30 { color: #000; }  .c-31 { color: #fe5f55; text-shadow: 0 0 8px rgba(254,95,85,0.4); } .c-32 { color: #34d399; text-shadow: 0 0 8px rgba(52,211,153,0.4); } .c-33 { color: #fcd34d; text-shadow: 0 0 8px rgba(252,211,77,0.4); } .c-34 { color: #60a5fa; } .c-35 { color: #e879f9; text-shadow: 0 0 8px rgba(232,121,249,0.4); } .c-36 { color: #22d3ee; text-shadow: 0 0 8px rgba(34,211,238,0.4); } .c-37 { color: #f8fafc; } .c-90 { color: #94a3b8; color: rgba(148, 163, 184, 0.8); } .c-91 { color: #f87171; } .c-92 { color: #34d399; } .c-93 { color: #fbbf24; } .c-94 { color: #60a5fa; } .c-95 { color: #e879f9; } .c-96 { color: #22d3ee; } .c-1 { font-weight: 600; }
+    /* ── Reset & Base ─────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-color: #050810;
+      --glass-bg: rgba(15, 23, 42, 0.55);
+      --glass-bdr: rgba(255, 255, 255, 0.08);
+      --glass-hl: rgba(255, 255, 255, 0.15);
+
+      --cyan: #00f0ff;
+      --blue: #3b82f6;
+      --magenta: #d946ef;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+
+      --text: #f8fafc;
+      --text-dim: #94a3b8;
+      --focus: rgba(0, 240, 255, 0.3);
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── Animated Mesh Gradient Background ────────────────── */
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      filter: blur(120px);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    body::before {
+      background: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.4), transparent 50%);
+      animation: floatBackground 20s ease-in-out infinite alternate;
+    }
+
+    body::after {
+      background: radial-gradient(circle at 85% 30%, rgba(217, 70, 239, 0.35), transparent 50%);
+      animation: floatBackground 25s ease-in-out infinite alternate-reverse;
+    }
+
+    @keyframes floatBackground {
+      0% {
+        transform: scale(1) translate(0, 0);
+      }
+
+      50% {
+        transform: scale(1.2) translate(5%, 5%);
+      }
+
+      100% {
+        transform: scale(0.9) translate(-5%, -5%);
+      }
+    }
+
+    /* ── Layout ───────────────────────────────────────────── */
+    .app {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      gap: 30px;
+      min-height: 600px;
+      z-index: 10;
+      position: relative;
+    }
+
+    aside {
+      width: 280px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: 0.3s;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── Header ───────────────────────────────────────────── */
+    header {
+      width: 100%;
+      max-width: 1200px;
+      text-align: left;
+      margin-bottom: 30px;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 10px rgba(165, 180, 252, 0.3));
+    }
+
+    header p {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      margin-top: 4px;
+      font-weight: 300;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ── Panels (Glassmorphism) ───────────────────────────── */
+    .panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--glass-bdr);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+    }
+
+    .panel:hover {
+      box-shadow: 0 15px 50px rgba(0, 240, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .panel-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--glass-bdr);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent);
+      font-weight: 600;
+      font-size: 1.05rem;
+      letter-spacing: 0.5px;
+      background-clip: text;
+      -webkit-text-fill-color: var(--cyan);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-body {
+      padding: 28px;
+    }
+
+    /* ── Side Menu ────────────────────────────────────────── */
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 24px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan);
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+      transform-origin: left;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+      transform: translateX(6px);
+    }
+
+    .menu-item.active {
+      background: linear-gradient(90deg, rgba(0, 240, 255, 0.1), transparent);
+      color: var(--cyan);
+      transform: translateX(4px);
+    }
+
+    .menu-item.active::before {
+      transform: scaleY(1);
+    }
+
+    .menu-item .icon {
+      font-size: 1.25rem;
+      width: 28px;
+      text-align: center;
+    }
+
+    .menu-divider {
+      height: 1px;
+      background: var(--glass-bdr);
+      margin: 6px 12px;
+    }
+
+    /* ── Forms ────────────────────────────────────────────── */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .form-control {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--glass-bdr);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(0, 240, 255, 0.05);
+      background: rgba(0, 240, 255, 0.03);
+    }
+
+    .form-control::placeholder {
+      color: #64748b;
+      font-weight: 300;
+    }
+
+    .btn {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      border: none;
+      border-radius: 12px;
+      padding: 12px 28px;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
+      z-index: 1;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--blue), var(--magenta));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 240, 255, 0.5);
+      color: #fff;
+    }
+
+    .btn:hover::before {
+      opacity: 1;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 10px rgba(0, 240, 255, 0.3);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-bdr);
+      color: var(--text);
+      box-shadow: none;
+    }
+
+    .btn-outline::before {
+      display: none;
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--glass-hl);
+      color: #fff;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ── Views ────────────────────────────────────────────── */
+    .view {
+      display: none;
+      animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes slideUpFade {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* ── Tables ───────────────────────────────────────────── */
+    .data-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 14px 18px;
+      text-align: left;
+    }
+
+    .data-table th {
+      color: var(--text-dim);
+      font-weight: 500;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--glass-bdr);
+    }
+
+    .data-table tbody tr {
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.3s ease;
+      border-radius: 8px;
+    }
+
+    .data-table tbody td:first-child {
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
+    }
+
+    .data-table tbody td:last-child {
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+
+    .data-table tbody tr:hover {
+      background: rgba(0, 240, 255, 0.08);
+      transform: scale(1.01) translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .text-right {
+      text-align: right !important;
+    }
+
+    .text-center {
+      text-align: center !important;
+    }
+
+    /* ── Specific Elements ────────────────────────────────── */
+    .balance-display {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.2));
+      border: 1px solid var(--glass-bdr);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      margin-top: 20px;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    }
+
+    .balance-label {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .balance-amount {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 12px;
+      text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .balance-acc {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      margin-top: 12px;
+      font-family: monospace;
+      letter-spacing: 1px;
+    }
+
+    /* ── Stats ────────────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.1));
+      border: 1px solid var(--glass-bdr);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+      border-color: var(--glass-hl);
+    }
+
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+
+    .stat-card-label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-card-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-top: 12px;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .text-cyan {
+      color: var(--cyan);
+      text-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+    }
+
+    .text-green {
+      color: var(--green);
+      text-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+    }
+
+    .text-blue {
+      color: var(--blue);
+      text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+    }
+
+    .text-yellow {
+      color: var(--yellow);
+      text-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+    }
+
+    .text-red {
+      color: var(--red);
+      text-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+    }
+
+    /* ── Toast Notifications ────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 1000;
+    }
+
+    .toast {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-bdr);
+      border-left: 4px solid var(--cyan);
+      color: #fff;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      opacity: 0;
+      transform: translateX(120%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toast-success {
+      border-left-color: var(--green);
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+    }
+
+    .toast-error {
+      border-left-color: var(--red);
+      box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2);
+    }
+
+    .toast-info {
+      border-left-color: var(--blue);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+    }
+
+    .toast-icon {
+      font-size: 1.4rem;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(120%);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateX(120%);
+      }
+    }
+
+    /* ── Responsive ───────────────────────────────────────── */
+    @media (max-width: 768px) {
+      body {
+        padding: 20px 10px;
+      }
+
+      .app {
+        flex-direction: column;
+      }
+
+      aside {
+        width: 100%;
+        border-radius: 20px;
+      }
+
+      header h1 {
+        font-size: 1.8rem;
+      }
+    }
   </style>
 </head>
+
 <body>
-  <div class="terminal-container" onclick="document.getElementById('cmdLine').focus()">
-    <div class="terminal-header">
-      <div class="window-controls"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
-      <div class="header-title">🏦 BANK SAVINGS PRO <span style="font-size:0.8em; opacity:0.6; margin-left:10px;">[ ONLINE HUB ]</span></div>
-      <div style="width: 58px;"></div>
+
+  <header>
+    <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+      <div>
+        <h1>💰 Personal Savings Account System</h1>
+      </div>
+      <div id="db-status" style="font-weight: 600; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; border: 1px solid var(--glass-bdr); margin-bottom: 5px;">
+        <span style="display:inline-block; width:8px; height:8px; background:#64748b; border-radius:50%; margin-right:6px;"></span>
+        Connecting...
+      </div>
+      <div id="user-header-info" style="display: block; text-align: right;">
+        <div style="font-size:0.85rem; color:var(--text-dim);">Logged in as</div>
+        <div id="user-header-name" style="font-weight:600; color:var(--cyan);">naveen</div>
+      </div>
     </div>
-    <div id="output"></div>
-    <div class="input-bar">
-      <div class="prompt-icon">❯</div>
-      <input type="text" id="cmdLine" autocomplete="off" autofocus placeholder="Awaiting Input..." spellcheck="false">
-    </div>
+  </header>
+
+  <div class="app">
+    <!-- ── Sidebar ── -->
+    <aside id="main-sidebar" style="display: flex;">
+      <div class="panel">
+        <div class="menu-list" id="menuList">
+          <div class="menu-item" data-view="view-home"><span class="icon">🏠</span> Dashboard Home</div>
+          <div class="menu-divider"></div>
+          <div class="menu-item" data-view="view-deposit"><span class="icon">💵</span> Deposit</div>
+          <div class="menu-item" data-view="view-withdraw"><span class="icon">💸</span> Withdraw</div>
+          <div class="menu-item" data-view="view-balance"><span class="icon">🔍</span> Balance Enquiry</div>
+          <div class="menu-item" data-view="view-history"><span class="icon">📋</span> My Transactions</div>
+          <div class="menu-divider"></div>
+          <div class="menu-item active" data-view="view-reports"><span class="icon">📊</span> Admin Reports</div>
+          <div class="menu-item" data-view="view-list"><span class="icon">📂</span> Admin All Accounts</div>
+          <div class="menu-divider"></div>
+          <div class="menu-item" onclick="handleLogout()" style="color:var(--red)"><span class="icon">🚪</span> Log Out
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Main Area ── -->
+    <main>
+      <div class="panel" style="flex:1;">
+
+        <!-- Login View -->
+        <div id="view-login" class="view">
+          <div class="panel-header">User Login</div>
+          <div class="panel-body" style="display:flex; flex-direction:column; align-items:center; padding-top:60px;">
+            <h2 style="font-size:1.6rem; margin-bottom:10px;">Welcome Back!</h2>
+            <p style="color:var(--text-dim); margin-bottom:30px;">Please enter your 16-digit Account ID to continue.</p>
+
+            <form onsubmit="handleLogin(event)" style="width:100%; max-width:400px;">
+              <div class="form-group">
+                <input type="text" id="login-accno" class="form-control" placeholder="16-Digit Account ID" minlength="16" maxlength="16" pattern="\d{16}" required="" style="text-align:center; font-size:1.2rem; letter-spacing:2px;">
+              </div>
+              <div class="form-group">
+                <input type="password" id="login-pin" class="form-control" placeholder="4-Digit Secret PIN" minlength="4" maxlength="4" pattern="\d{4}" required="" style="text-align:center; font-size:1.2rem; letter-spacing:2px;">
+              </div>
+              <button type="submit" class="btn" style="width:100%;">Secure Login</button>
+            </form>
+
+            <div style="margin-top: 30px; text-align: center; width:100%; max-width:400px; padding-top: 20px; border-top: 1px solid var(--glass-bdr);">
+              <p style="color: var(--text-dim); font-size: 0.95rem; margin-bottom: 12px;">Don't have an account?</p>
+              <button type="button" class="btn btn-outline" style="width:100%;" onclick="goToCreateAccount()">Open New
+                Account (Sign Up)</button>
+            </div>
+
+            <div id="login-error-box" style="display: none; margin-top: 20px; padding: 20px; background: rgba(248, 113, 113, 0.1); border: 1px solid var(--red); border-radius: 8px; width: 100%; max-width: 400px; text-align: center;">
+              <div style="color:var(--red); font-weight:600; margin-bottom:10px;">✗ Account Not Found</div>
+              <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:15px;">It looks like you don't have an
+                account with us yet.</p>
+              <button class="btn btn-outline" onclick="goToCreateAccount()">Create New Account</button>
+            </div>
+
+            <!-- Quick Tools for testing -->
+            <div style="margin-top:60px; padding-top:20px; border-top:1px solid var(--border); width:100%; max-width:400px; text-align:center;">
+              <button class="btn btn-outline" style="font-size:0.8rem; padding:6px 12px;" onclick="loadDemo()">🎯 Load
+                Demo Sandbox Data</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create Account View -->
+        <div id="view-create" class="view">
+          <div class="panel-header">
+            <span>Create New Account</span>
+            <button class="btn-outline" style="font-size:0.8rem; padding:4px 10px; border-radius:4px; cursor:pointer;" onclick="goToLogin()">← Back to Login</button>
+          </div>
+          <div class="panel-body">
+            <form id="form-create" onsubmit="handleCreate(event)" style="max-width: 500px; margin: 0 auto;">
+              <div class="form-group">
+                <label>16-Digit Account Number</label>
+                <input type="text" id="create-accno" class="form-control" placeholder="e.g. 1234567890123456" minlength="16" maxlength="16" pattern="\d{16}" required="">
+              </div>
+              <div style="display:flex; gap:16px; margin-bottom:16px; max-width:400px;">
+                <div class="form-group" style="margin-bottom:0; flex:1;">
+                  <label>4-Digit Secret PIN</label>
+                  <input type="password" id="create-pin1" class="form-control" placeholder="1234" minlength="4" maxlength="4" pattern="\d{4}" required="">
+                </div>
+                <div class="form-group" style="margin-bottom:0; flex:1;">
+                  <label>Confirm PIN</label>
+                  <input type="password" id="create-pin2" class="form-control" placeholder="1234" minlength="4" maxlength="4" pattern="\d{4}" required="">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="create-name" class="form-control" placeholder="Account holder name" required="">
+              </div>
+              <div class="form-group">
+                <label>Opening Deposit (₹) - Optional</label>
+                <input type="number" id="create-dep" class="form-control" min="0" step="0.01" placeholder="0.00">
+              </div>
+              <button type="submit" class="btn">Create Account &amp; Login</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Home View (Logged in) -->
+        <div id="view-home" class="view">
+          <div class="panel-header">Dashboard Home</div>
+          <div class="panel-body" style="text-align: center; padding: 40px 20px;">
+            <h2 id="home-welcome-msg" style="color:var(--cyan); font-size:1.8rem; margin-bottom:10px;">Hello, naveen</h2>
+            <p style="color:var(--text-dim); margin-bottom: 20px; font-size:1.05rem;">Account Number: <span id="home-acc-display" style="color:var(--text); font-family:monospace;">1029384756102938</span></p>
+
+            <div class="balance-display" style="max-width:500px; margin:0 auto 40px;">
+              <div class="balance-label">Current Available Balance</div>
+              <div id="home-balance" class="balance-amount text-green">₹400.00</div>
+            </div>
+
+            <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+              <button class="btn" onclick="document.querySelector('[data-view=\'view-deposit\']').click()">Make a
+                Deposit</button>
+              <button class="btn btn-outline" onclick="document.querySelector('[data-view=\'view-withdraw\']').click()">Withdraw Funds</button>
+              <button class="btn btn-outline" onclick="document.querySelector('[data-view=\'view-history\']').click()">View History</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deposit View -->
+        <div id="view-deposit" class="view">
+          <div class="panel-header">Deposit Funds</div>
+          <div class="panel-body">
+            <form id="form-deposit" onsubmit="handleDeposit(event)" style="max-width: 500px; margin: 0 auto;">
+              <div class="form-group">
+                <label>Amount to Deposit (₹)</label>
+                <input type="number" id="dep-amount" class="form-control" min="0.01" step="0.01" required="">
+              </div>
+              <div class="form-group">
+                <label>Confirm Password/PIN</label>
+                <input type="password" id="dep-pin" class="form-control" minlength="4" maxlength="4" pattern="\d{4}" required="" style="max-width:200px;">
+              </div>
+              <button type="submit" class="btn">Confirm Deposit</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Withdraw View -->
+        <div id="view-withdraw" class="view">
+          <div class="panel-header">Withdraw Funds</div>
+          <div class="panel-body">
+            <form id="form-withdraw" onsubmit="handleWithdraw(event)" style="max-width: 500px; margin: 0 auto;">
+              <div class="form-group">
+                <label>Amount to Withdraw (₹)</label>
+                <input type="number" id="wd-amount" class="form-control" min="0.01" step="0.01" required="">
+              </div>
+              <div class="form-group">
+                <label>Confirm Password/PIN</label>
+                <input type="password" id="wd-pin" class="form-control" minlength="4" maxlength="4" pattern="\d{4}" required="" style="max-width:200px;">
+              </div>
+              <button type="submit" class="btn">Confirm Withdrawal</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Balance Enquiry View -->
+        <div id="view-balance" class="view">
+          <div class="panel-header">Balance Enquiry</div>
+          <div class="panel-body">
+            <div style="border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:20px;">
+              <form id="form-balance" onsubmit="handleBalance(event)" style="max-width: 500px; margin: 0 auto;">
+                <div class="form-group">
+                  <label>Confirm Password/PIN to View Balance</label>
+                  <input type="password" id="bal-pin" class="form-control" minlength="4" maxlength="4" pattern="\d{4}" required="" style="max-width:200px;">
+                </div>
+                <button type="submit" class="btn btn-outline" style="padding: 6px 16px;">Unlock Balance</button>
+              </form>
+            </div>
+            <div id="bal-result" style="display: none; transition: opacity 0.3s;">
+              <div class="balance-display" style="max-width:500px;">
+                <div class="balance-label">Current Balance</div>
+                <div id="bal-disp-amount" class="balance-amount text-green">₹115000.00</div>
+                <div id="bal-disp-acc" class="balance-acc">Account: #1234567890123456</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- History View -->
+        <div id="view-history" class="view">
+          <div class="panel-header">My Last 5 Transactions</div>
+          <div class="panel-body">
+            <div style="border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:20px;">
+              <form id="form-history" onsubmit="handleHistory(event)" style="max-width: 500px; margin: 0 auto;">
+                <div class="form-group">
+                  <label>Confirm Password/PIN to View History</label>
+                  <input type="password" id="hist-pin" class="form-control" minlength="4" maxlength="4" pattern="\d{4}" required="" style="max-width:200px;">
+                </div>
+                <button type="submit" class="btn btn-outline" style="padding: 6px 16px;">Unlock History</button>
+              </form>
+            </div>
+            <div id="hist-result" style="display: none;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Txn ID</th>
+                    <th>Date/Time</th>
+                    <th>Type</th>
+                    <th class="text-right">Amount (₹)</th>
+                    <th class="text-right">Balance (₹)</th>
+                  </tr>
+                </thead>
+                <tbody id="hist-table-body"><tr>
+        <td style="color:var(--text-dim)">#3</td>
+        <td>2026-04-10 07:39:09</td>
+        <td class="text-red" style="font-weight:600;">WITHDRAW</td>
+        <td class="text-right text-red">₹10000.00</td>
+        <td class="text-right text-blue">₹115000.00</td>
+      </tr><tr>
+        <td style="color:var(--text-dim)">#2</td>
+        <td>2026-04-10 07:38:56</td>
+        <td class="text-green" style="font-weight:600;">DEPOSIT</td>
+        <td class="text-right text-green">₹25000.00</td>
+        <td class="text-right text-blue">₹125000.00</td>
+      </tr><tr>
+        <td style="color:var(--text-dim)">#1</td>
+        <td>2026-04-10 07:38:42</td>
+        <td class="text-green" style="font-weight:600;">DEPOSIT</td>
+        <td class="text-right text-green">₹100000.00</td>
+        <td class="text-right text-blue">₹100000.00</td>
+      </tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reports View -->
+        <div id="view-reports" class="view active">
+          <div class="panel-header">System Reports &amp; Statistics</div>
+          <div class="panel-body">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-card-label">Total Accounts</div>
+                <div class="stat-card-value text-cyan" id="rep-total-accs">3</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-label">Total Deposits (₹)</div>
+                <div class="stat-card-value text-green" id="rep-total-money">115900.00</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-label">Low Balances (&lt;₹500)&lt; /div&gt;
+                    <div class="stat-card-value text-yellow" id="rep-low-count">1</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-card-label">Total Transactions</div>
+                  <div class="stat-card-value text-blue" id="rep-total-txns">5</div>
+                </div>
+              </div>
+
+              <h3 style="font-size:1rem; margin-bottom:10px; margin-top:30px;">Low Balance Accounts (&lt; ₹500)</h3>
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Account #</th>
+                        <th>Holder Name</th>
+                        <th class="text-right">Balance (₹)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="rep-low-table">
+      <tr>
+        <td class="text-dim">#1029384756102938</td>
+        <td>naveen</td>
+        <td class="text-right text-red" style="font-weight:600;">₹400.00</td>
+      </tr>
+    </tbody>
+                  </table>
+            </div>
+          </div>
+
+          <!-- List All View -->
+          <div id="view-list" class="view">
+            <div class="panel-header">All Registered Accounts</div>
+            <div class="panel-body">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Account #</th>
+                    <th>Holder Name</th>
+                    <th class="text-right">Balance (₹)</th>
+                  </tr>
+                </thead>
+                <tbody id="list-table-body">
+    <tr>
+      <td class="text-blue">#1234567890123456</td>
+      <td style="font-weight:500;">Santhosh</td>
+      <td class="text-right text-green" style="font-weight:600;">₹115000.00</td>
+    </tr>
+  </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+    </div></main>
   </div>
 
   <script>
-    const outputElement = document.getElementById('output');
-    const inputElement = document.getElementById('cmdLine');
-    window.inputBuffer = [];
+    // ═══════════════════════════════════════════════════════
+    //  JavaScript Mirror of the C++ Banking System
+    // ═══════════════════════════════════════════════════════
 
-    function parseANSI(text) {
-      if(!text) return '';
-      text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      let res = '';
-      const parts = text.split(/\x1b\[/);
-      res += parts[0];
-      let activeSpans = 0;
-      for(let i=1; i<parts.length; i++) {
-        const m = parts[i].match(/^(\d+(?:;\d+)*)m(.*)/si);
-        if(m) {
-          const codes = m[1].split(';');
-          if(codes.includes('0')) { res += '</span>'.repeat(activeSpans); activeSpans = 0; }
-          else { res += `<span class="${codes.map(c=>'c-'+c).join(' ')}">`; activeSpans++; }
-          res += m[2] || '';
-        } else { res += parts[i]; }
+    function showToast(msg, type = 'info', icon = 'ℹ️') {
+      let container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
       }
-      res += '</span>'.repeat(activeSpans);
-      return res;
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `<span class="toast-icon">${icon}</span> <span style="font-weight:600">${msg}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'fadeOut 0.4s ease forwards';
+        setTimeout(() => toast.remove(), 400);
+      }, 3500);
     }
 
-    // This is explicitly called by C++ to bypass Emscripten's line-buffering
-    window.cprint = function(text) {
-        const span = document.createElement('span');
-        span.innerHTML = parseANSI(text);
-        outputElement.appendChild(span);
-        outputElement.scrollTop = outputElement.scrollHeight;
+    const bank = {
+      accounts: [],          // { accNo(String), name, balance, history[] }
+      txnGlobal: 0,
     };
 
-    var Module = {
-      print: function() { /* Ignored, using cprint exclusively */ },
-      printErr: function(text) { console.error(text); }
-    };
+    let loggedInAccount = null;
 
-    inputElement.addEventListener('keydown', function(event) {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        const value = inputElement.value;
-        if(value != null) {
-          window.inputBuffer.push(value);
-          // Echo beautifully
-          window.cprint('\x1b[90m' + value + '\x1b[0m\n');
-          inputElement.value = '';
+    function findAcc(no) { return bank.accounts.find(a => a.accNo === no); }
+    function now() { return new Date().toISOString().replace('T', ' ').substring(0, 19); }
+    function fmt(n) { return parseFloat(n).toFixed(2); }
+    function escHtml(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    // ── UI Navigation ────────────────────────────────────────
+    const views = document.querySelectorAll('.view');
+    const menuItems = document.querySelectorAll('.menu-item');
+
+    function switchView(viewId) {
+      views.forEach(v => v.classList.remove('active'));
+      const target = document.getElementById(viewId);
+      if (target) target.classList.add('active');
+
+      menuItems.forEach(m => m.classList.toggle('active', m.dataset.view === viewId));
+
+      if (viewId === 'view-reports') generateReports();
+      if (viewId === 'view-list') generateListAll();
+      if (viewId === 'view-home') updateHomeView();
+
+      // Hide results again until PIN is verified
+      const br = document.getElementById('bal-result'); if (br) br.style.display = 'none';
+      const hr = document.getElementById('hist-result'); if (hr) hr.style.display = 'none';
+
+      // Clear forms
+      const df = document.getElementById('form-deposit'); if (df) df.reset();
+      const wf = document.getElementById('form-withdraw'); if (wf) wf.reset();
+      const bf = document.getElementById('form-balance'); if (bf) bf.reset();
+      const hf = document.getElementById('form-history'); if (hf) hf.reset();
+    }
+
+    menuItems.forEach(item => {
+      item.addEventListener('click', () => {
+        if (!item.dataset.view) return; // For logout or custom actions
+        switchView(item.dataset.view);
+      });
+    });
+
+    function renderAppState() {
+      const sidebar = document.getElementById('main-sidebar');
+      const uiInfo = document.getElementById('user-header-info');
+      const uiName = document.getElementById('user-header-name');
+
+      if (loggedInAccount === null) {
+        sidebar.style.display = 'none';
+        uiInfo.style.display = 'none';
+        switchView('view-login');
+      } else {
+        sidebar.style.display = 'flex';
+        uiInfo.style.display = 'block';
+        const acc = findAcc(loggedInAccount);
+        if (acc) uiName.textContent = escHtml(acc.name);
+        switchView('view-home');
+      }
+    }
+
+    // ── Handlers ────────────────────────────────────────────
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const accNo = document.getElementById('login-accno').value.trim();
+      const pin = document.getElementById('login-pin').value.trim();
+      const errorBox = document.getElementById('login-error-box');
+
+      const acc = findAcc(accNo);
+      if (acc) {
+        if (acc.pin === pin) {
+          errorBox.style.display = 'none';
+          document.getElementById('login-accno').value = '';
+          document.getElementById('login-pin').value = '';
+          loggedInAccount = acc.accNo;
+          showToast(`Welcome back, ${acc.name}!`, 'success', '👋');
+          renderAppState();
+        } else {
+          showToast('Incorrect Secret PIN! Access Denied.', 'error', '🔒');
+        }
+      } else {
+        errorBox.style.display = 'block';
+      }
+    }
+
+    function handleLogout() {
+      loggedInAccount = null;
+      showToast('Logged out successfully', 'info', '🚪');
+      renderAppState();
+    }
+
+    function goToCreateAccount() {
+      document.getElementById('login-error-box').style.display = 'none';
+      switchView('view-create');
+    }
+
+    function goToLogin() {
+      switchView('view-login');
+    }
+
+    function handleCreate(e) {
+      e.preventDefault();
+      const accNo = document.getElementById('create-accno').value.trim();
+      const pin1 = document.getElementById('create-pin1').value;
+      const pin2 = document.getElementById('create-pin2').value;
+      const name = document.getElementById('create-name').value.trim();
+      const depStr = document.getElementById('create-dep').value;
+      const amount = (depStr === '' || isNaN(depStr)) ? 0 : parseFloat(depStr);
+
+      if (!/^\d{16}$/.test(accNo)) {
+        showToast('Account number must be 16 digits.', 'error', '⚠️');
+        return;
+      }
+      if (pin1 !== pin2) {
+        showToast('Secret PINs do not match.', 'error', '✗');
+        return;
+      }
+      if (findAcc(accNo)) {
+        showToast(`Account #${accNo} already exists!`, 'error', '✗');
+        return;
+      }
+
+      bank.accounts.push({ accNo, pin: pin1, name, balance: amount, history: [] });
+      if (amount > 0) {
+        const acc = findAcc(accNo);
+        bank.txnGlobal++;
+        acc.history.push({ no: bank.txnGlobal, type: 'DEPOSIT', amount, balAfter: amount, ts: now() });
+      }
+
+      showToast(`Account #${accNo} created. Logging you in!`, 'success', '🏦');
+      document.getElementById('form-create').reset();
+
+      // Auto login
+      loggedInAccount = accNo;
+      renderAppState();
+    }
+
+
+    // ── WASM Helpers ───────────────────────────────────────────
+    function jsToStr(str) {
+      if (!str) return 0;
+      const len = lengthBytesUTF8(str) + 1;
+      const ptr = Module._malloc(len);
+      stringToUTF8(str, ptr, len);
+      return ptr;
+    }
+
+    // ── WASM State Synchronization ──────────────────────────────
+    function syncWasmData() {
+      if (!Module._getAccountsDataWasm) return;
+      console.log("Syncing JS state with WASM Core...");
+      
+      // Get Accounts
+      const ptr = Module._getAccountsDataWasm();
+      const data = UTF8ToString(ptr);
+      Module._free(ptr);
+
+      if (data) {
+        bank.accounts = data.trim().split('\n').map(l => {
+          const [no, pin, name, bal] = l.split('|');
+          return { accNo: no, pin: pin, name: name, balance: parseFloat(bal), history: [] };
+        });
+      }
+      
+      // Refresh current UI if logged in
+      if (loggedInAccount) {
+        const accNoPtr = jsToStr(loggedInAccount);
+        const hPtr = Module._getHistoryDataWasm(accNoPtr);
+        const hData = UTF8ToString(hPtr);
+        Module._free(hPtr);
+        Module._free(accNoPtr);
+        
+        const acc = findAcc(loggedInAccount);
+        if (acc && hData) {
+          acc.history = hData.trim().split('\n').filter(l => l).map(l => {
+            const [no, ts, type, amt, bal] = l.split('|');
+            return { no: parseInt(no), ts, type, amount: parseFloat(amt), balAfter: parseFloat(bal) };
+          });
         }
       }
-    });
+      renderAppState();
+    }
 
-    document.addEventListener("click", () => {
-        inputElement.focus();
-    });
+    function handleCreate(e) {
+      e.preventDefault();
+      const accNo = document.getElementById('create-accno').value.trim();
+      const p1 = document.getElementById('create-pin1').value;
+      const p2 = document.getElementById('create-pin2').value;
+      const name = document.getElementById('create-name').value.trim();
+      const dep = parseFloat(document.getElementById('create-dep').value || 0);
+
+      if (p1 !== p2) return showToast('Secret PINs do not match.', 'error', '✗');
+      if (accNo.length !== 16) return showToast('Account number must be 16 digits.', 'error', '⚠️');
+
+      const aPtr = jsToStr(accNo);
+      const pPtr = jsToStr(p1);
+      const nPtr = jsToStr(name);
+
+      const res = Module._createAccountWasm(aPtr, pPtr, nPtr, dep);
+      Module._free(aPtr); Module._free(pPtr); Module._free(nPtr);
+
+      if (res === 1) {
+        showToast(`Account #${accNo} created. Logging you in!`, 'success', '🏦');
+        document.getElementById('form-create').reset();
+        loggedInAccount = accNo;
+        syncWasmData();
+      } else if (res === -1) {
+        showToast(`Account #${accNo} already exists!`, 'error', '✗');
+      } else {
+        showToast("WASM Error creating account.", "error", "⚠️");
+      }
+    }
+
+    function handleDeposit(e) {
+      e.preventDefault();
+      if (!loggedInAccount) return;
+      const amt = parseFloat(document.getElementById('dep-amount').value);
+      const pin = document.getElementById('dep-pin').value;
+      
+      const aPtr = jsToStr(loggedInAccount);
+      const pPtr = jsToStr(pin);
+      const res = Module._depositWasm(aPtr, pPtr, amt);
+      Module._free(aPtr); Module._free(pPtr);
+
+      if (res === 1) {
+        showToast(`Deposited ₹${fmt(amt)} successfully`, 'success', '💵');
+        document.getElementById('form-deposit').reset();
+        syncWasmData();
+        switchView('view-home');
+      } else if (res === -2) {
+        showToast('Incorrect PIN. Access Denied.', 'error', '🔒');
+      } else {
+        showToast("Transaction failed.", "error", "⚠️");
+      }
+    }
+
+    function handleWithdraw(e) {
+      e.preventDefault();
+      if (!loggedInAccount) return;
+      const amt = parseFloat(document.getElementById('wd-amount').value);
+      const pin = document.getElementById('wd-pin').value;
+
+      const aPtr = jsToStr(loggedInAccount);
+      const pPtr = jsToStr(pin);
+      const res = Module._withdrawWasm(aPtr, pPtr, amt);
+      Module._free(aPtr); Module._free(pPtr);
+
+      if (res === 1) {
+        showToast(`Withdrawn ₹${fmt(amt)} successfully`, 'success', '💸');
+        document.getElementById('form-withdraw').reset();
+        syncWasmData();
+        switchView('view-home');
+      } else if (res === -2) {
+        showToast('Incorrect PIN. Access Denied.', 'error', '🔒');
+      } else {
+        showToast("Insufficient funds or transaction failed.", "error", "⚠️");
+      }
+    }
+
+    // Initialize WASM on load
+    if (Module) {
+      Module.onRuntimeInitialized = () => {
+        console.log("WASM Runtime Initialized.");
+        Module._initBank();
+        syncWasmData();
+      };
+    }
   </script>
-  {{{ SCRIPT }}}
-</body>
-</html>
+
+  </script>
+
+
+
+<div id="toast-container"></div>
+
+<!-- Supabase SDK & Config -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase_config.js"></script>
+<script>
+// Supabase Bridge Functions (Defined early for WASM)
+window.supabaseBatchSync = async function(accData, txnData) {
+  if (!window.db) return;
+  console.log("Supabase Batch Sync Started...");
+  
+  // 1. Parse Accounts
+  const accLines = accData.trim().split('\n').filter(l => l);
+  const accounts = accLines.map(l => {
+    const [acc_no, name, balance, pin] = l.split('|');
+    return { acc_no, name, balance: parseFloat(balance), pin };
+  });
+
+  // 2. Parse Transactions
+  const txnLines = txnData.trim().split('\n').filter(l => l);
+  const transactions = txnLines.map(l => {
+    const [acc_no, txn_no, type, amount, bal_after, timestamp] = l.split('|');
+    return { acc_no, txn_no: parseInt(txn_no), type, amount: parseFloat(amount), bal_after: parseFloat(bal_after), timestamp };
+  });
+
+  try {
+    // 3. Perform Batch Operations
+    if (accounts.length > 0) {
+      await window.db.from('accounts').upsert(accounts, { onConflict: 'acc_no' });
+    }
+    if (transactions.length > 0) {
+      // For transactions, we might want to avoid duplicates if they have unique IDs, 
+      // but here we just insert. To be safe, we could use a custom unique constraint on (acc_no, txn_no).
+      await window.db.from('transactions').upsert(transactions, { onConflict: 'acc_no,txn_no' });
+    }
+    console.log("Supabase Batch Sync SUCCESS");
+  } catch (err) {
+    console.error("Supabase Batch Sync FAILED:", err);
+  }
+};
+
+window.supabaseLoadAccounts = async function() {
+  if (!window.db) return '';
+  const { data, error } = await window.db.from('accounts').select('acc_no,name,balance,pin');
+  if (error || !data) return '';
+  return data.map(r => `${r.acc_no}|${r.pin}|${r.name}|${r.balance.toFixed(2)}|0`).join('\n');
+};
+
+// Initialization
+(async function initSupabase() {
+  try {
+    const config = window.SUPABASE_CONFIG;
+    if (!config || !config.URL || !config.KEY) {
+      console.error("Supabase Config Missing!");
+      return;
+    }
+    window.db = supabase.createClient(config.URL, config.KEY);
+    
+    const badge = document.getElementById('db-status');
+    console.log("Checking DB connection...");
+    const { error } = await window.db.from('accounts').select('acc_no').limit(1);
+    if (error) throw error;
+    
+    console.log("DB Connection SUCCESS");
+    if (badge) {
+      badge.innerHTML = '<span style="display:inline-block; width:8px; height:8px; background:#10b981; border-radius:50%; margin-right:6px; box-shadow:0 0 8px #10b981;"></span> 🟢 DB LIVE';
+      badge.style.color = '#34d399';
+    }
+  } catch (err) {
+    console.error("DB Connection FAILED:", err);
+    const badge = document.getElementById('db-status');
+    if (badge) {
+      badge.innerHTML = '<span style="display:inline-block; width:8px; height:8px; background:#ef4444; border-radius:50%; margin-right:6px; box-shadow:0 0 8px #ef4444;"></span> 🔴 DB OFFLINE';
+      badge.style.color = '#fe5f55';
+    }
+  }
+})();
+</script>
+{{{ SCRIPT }}}
+</body></html>

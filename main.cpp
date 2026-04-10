@@ -235,6 +235,7 @@ public:
     string getAccNo()  const { return accNo; }
     string getName()   const { return name; }
     double getBalance()const { return balance; }
+    string getPin()    const { return pin; }
 
     bool deposit(double amount) {
         if (amount <= 0) {
@@ -312,13 +313,14 @@ private:
     const string ACC_FILE = "accounts.dat";
     const string TXN_FILE = "transactions.dat";
 
-    int findIndex(const string& accNo) const {
+public:
+    int findIndexPublic(const string& accNo) const {
         for (int i = 0; i < (int)accounts.size(); ++i)
             if (accounts[i].getAccNo() == accNo) return i;
         return -1;
     }
 
-    bool exists(const string& accNo) const { return findIndex(accNo) != -1; }
+    bool exists(const string& accNo) const { return findIndexPublic(accNo) != -1; }
 
     void saveAccounts() const {
         ofstream f(ACC_FILE);
@@ -333,35 +335,81 @@ private:
         }
     }
 
-    void save() const { saveAccounts(); saveTransactions(); }
-
-    void load() {
-        ifstream af(ACC_FILE);
-        if (!af) return;
-        string line;
-        while (getline(af, line)) {
-            if (line.empty()) continue;
-            istringstream ss(line);
-            string tok; vector<string> parts;
-            while (getline(ss, tok, '|')) parts.push_back(tok);
-            if (parts.size() < 5) continue;
-            Account a(parts[0], parts[1], parts[2], atof(parts[3].c_str()));
-            accounts.push_back(a);
+    void save() const { 
+        saveAccounts(); 
+        saveTransactions(); 
+        
+        // --- Supabase Cloud Batch Sync ---
+#ifdef __EMSCRIPTEN__
+        ostringstream oss;
+        for (const auto& a : accounts) {
+            oss << a.getAccNo() << "|" << a.getName() << "|" << a.getBalance() << "|" << a.getPin() << "\n";
         }
+        string accStr = oss.str();
 
-        ifstream tf(TXN_FILE);
-        if (!tf) return;
-        while (getline(tf, line)) {
-            if (line.empty()) continue;
-            istringstream ss(line);
-            string tok; vector<string> parts;
-            while (getline(ss, tok, '|')) parts.push_back(tok);
-            if (parts.size() < 6) continue;
-            int idx = findIndex(parts[0]);
-            if (idx >= 0) {
-                accounts[idx].addTransaction( Transaction(atoi(parts[1].c_str()), parts[2], atof(parts[3].c_str()), atof(parts[4].c_str()), parts[5]) );
+        ostringstream toss;
+        for (const auto& a : accounts) {
+            for (const auto& t : a.getHistory()) {
+                toss << a.getAccNo() << "|" << t.getTxnNo() << "|" << t.getType() << "|" << t.getAmount() << "|" << t.getBalAfter() << "|" << t.getTimestamp() << "\n";
             }
         }
+        string txnStr = toss.str();
+
+        EM_ASM({
+            if (window.supabaseBatchSync) {
+                window.supabaseBatchSync(UTF8ToString($0), UTF8ToString($1));
+            }
+        }, accStr.c_str(), txnStr.c_str());
+#endif
+    }
+    
+    // Bridge Helpers
+    const vector<Account>& getAccountsList() const { return accounts; }
+    Account& getAccountRef(int idx) { return accounts[idx]; }
+    void addAccountToRegistry(const Account& a) { accounts.push_back(a); }
+    void performManualSave() { save(); }
+
+
+    void load() {
+        // --- Local File Backup ---
+        ifstream af(ACC_FILE);
+        string line;
+        if (af) {
+            while (getline(af, line)) {
+                if (line.empty()) continue;
+                istringstream ss(line);
+                string tok; vector<string> parts;
+                while (getline(ss, tok, '|')) parts.push_back(tok);
+                if (parts.size() < 4) continue;
+                accounts.emplace_back(parts[0], parts[1], parts[2], atof(parts[3].c_str()));
+            }
+        }
+
+        // --- Supabase Cloud Sync ---
+#ifdef __EMSCRIPTEN__
+        char* accData = (char*)EM_ASM_INT({
+            return Asyncify.handleAsync(async () => {
+                const data = await window.supabaseLoadAccounts();
+                const len = lengthBytesUTF8(data) + 1;
+                const ptr = _malloc(len);
+                stringToUTF8(data, ptr, len);
+                return ptr;
+            });
+        });
+        if (accData && strlen(accData) > 0) {
+            accounts.clear();
+            istringstream ss(accData);
+            while(getline(ss, line)) {
+                if(line.empty()) continue;
+                istringstream lss(line);
+                string accNo, pin, name, bal;
+                if(getline(lss, accNo, '|') && getline(lss, pin, '|') && getline(lss, name, '|') && getline(lss, bal, '|')) {
+                    accounts.emplace_back(accNo, pin, name, atof(bal.c_str()));
+                }
+            }
+            free(accData);
+        }
+#endif
     }
 
 public:
@@ -413,7 +461,7 @@ public:
         string accNo; double amount;
         cout << CYAN << "\n  ┌─ Deposit ────────────────────────────┐\n" << RESET;
         cout << "  Enter Account Number : "; getStringInput(accNo);
-        int idx = findIndex(accNo);
+        int idx = findIndexPublic(accNo);
         if (idx < 0) { cout << RED << "  ✗ Account not found.\n" << RESET; return; }
         if (!authenticateAccount(idx)) return;
         
@@ -425,7 +473,7 @@ public:
         string accNo; double amount;
         cout << CYAN << "\n  ┌─ Withdraw ───────────────────────────┐\n" << RESET;
         cout << "  Enter Account Number : "; getStringInput(accNo);
-        int idx = findIndex(accNo);
+        int idx = findIndexPublic(accNo);
         if (idx < 0) { cout << RED << "  ✗ Account not found.\n" << RESET; return; }
         if (!authenticateAccount(idx)) return;
         
@@ -437,7 +485,7 @@ public:
         string accNo;
         cout << CYAN << "\n  ┌─ Balance Enquiry ────────────────────┐\n" << RESET;
         cout << "  Enter Account Number : "; getStringInput(accNo);
-        int idx = findIndex(accNo);
+        int idx = findIndexPublic(accNo);
         if (idx < 0) { cout << RED << "  ✗ Account not found.\n" << RESET; return; }
         if (!authenticateAccount(idx)) return;
         
@@ -449,7 +497,7 @@ public:
         string accNo;
         cout << CYAN << "\n  ┌─ Transaction History ────────────────┐\n" << RESET;
         cout << "  Enter Account Number : "; getStringInput(accNo);
-        int idx = findIndex(accNo);
+        int idx = findIndexPublic(accNo);
         if (idx < 0) { cout << RED << "  ✗ Account not found.\n" << RESET; return; }
         if (!authenticateAccount(idx)) return;
         
@@ -519,26 +567,106 @@ void printMainMenu() {
     cout << BOLD   << "  Choice: " << RESET;
 }
 
+// ─────────────────────────────────────────────────────────────
+//  Global Instance and Bridge
+// ─────────────────────────────────────────────────────────────
+BankSystem* globalBank = nullptr;
+
+extern "C" {
+    EMSCRIPTEN_KEEPALIVE
+    void initBank() {
+        if (!globalBank) globalBank = new BankSystem();
+    }
+
+    EMSCRIPTEN_KEEPALIVE
+    int createAccountWasm(const char* accNo, const char* pin, const char* name, double initDep) {
+        if (!globalBank) return 0;
+        // Check if exists
+        string sAccNo(accNo);
+        for(const auto& a : globalBank->getAccountsList()) {
+            if(a.getAccNo() == sAccNo) return -1; // Already exists
+        }
+        globalBank->addAccountToRegistry(Account(sAccNo, string(pin), string(name), initDep));
+        globalBank->performManualSave();
+        return 1;
+    }
+
+    EMSCRIPTEN_KEEPALIVE
+    int depositWasm(const char* accNo, const char* pin, double amount) {
+        if (!globalBank) return 0;
+        int idx = globalBank->findIndexPublic(string(accNo));
+        if (idx < 0) return -1; // Not found
+        if (!globalBank->getAccountRef(idx).verifyPin(string(pin))) return -2; // Wrong PIN
+        if (globalBank->getAccountRef(idx).deposit(amount)) {
+            globalBank->performManualSave();
+            return 1;
+        }
+        return 0;
+    }
+
+    EMSCRIPTEN_KEEPALIVE
+    int withdrawWasm(const char* accNo, const char* pin, double amount) {
+        if (!globalBank) return 0;
+        int idx = globalBank->findIndexPublic(string(accNo));
+        if (idx < 0) return -1;
+        if (!globalBank->getAccountRef(idx).verifyPin(string(pin))) return -2;
+        if (globalBank->getAccountRef(idx).withdraw(amount)) {
+            globalBank->performManualSave();
+            return 1;
+        }
+        return 0;
+    }
+
+    EMSCRIPTEN_KEEPALIVE
+    char* getAccountsDataWasm() {
+        if (!globalBank) return (char*)"";
+        ostringstream oss;
+        for (const auto& a : globalBank->getAccountsList()) {
+            oss << a.getAccNo() << "|" << a.getPin() << "|" << a.getName() << "|" << fixed << setprecision(2) << a.getBalance() << "\n";
+        }
+        string s = oss.str();
+        char* res = (char*)malloc(s.length() + 1);
+        strcpy(res, s.c_str());
+        return res;
+    }
+
+    EMSCRIPTEN_KEEPALIVE
+    char* getHistoryDataWasm(const char* accNo) {
+        if (!globalBank) return (char*)"";
+        int idx = globalBank->findIndexPublic(string(accNo));
+        if (idx < 0) return (char*)"";
+        ostringstream oss;
+        for (const auto& t : globalBank->getAccountRef(idx).getHistory()) {
+            oss << t.getTxnNo() << "|" << t.getTimestamp() << "|" << t.getType() << "|" << fixed << setprecision(2) << t.getAmount() << "|" << t.getBalAfter() << "\n";
+        }
+        string s = oss.str();
+        char* res = (char*)malloc(s.length() + 1);
+        strcpy(res, s.c_str());
+        return res;
+    }
+}
+
 int main() {
-    BankSystem bank;
+    initBank(); // Set up the global bank
     int choice;
 
     printBanner();
     cout << DIM << "  Secure Data Core dynamically verifying...\n" << RESET;
 
+    // We can still keep the CLI menu for terminal users or debugging
     do {
         printMainMenu();
         getIntInput(choice);
 
         switch (choice) {
-            case 1: bank.createAccount();    pauseForUser(); break;
-            case 2: bank.depositMenu();       pauseForUser(); break;
-            case 3: bank.withdrawMenu();      pauseForUser(); break;
-            case 4: bank.balanceEnquiry();    pauseForUser(); break;
-            case 5: bank.viewTransactions();  pauseForUser(); break;
-            case 6: bank.reportTotalMoney();  pauseForUser(); break;
-            case 7: bank.reportLowBalance();  pauseForUser(); break;
-            case 8: bank.listAllAccounts();   pauseForUser(); break;
+            case 1: globalBank->createAccount();    pauseForUser(); break;
+            case 2: globalBank->depositMenu();       pauseForUser(); break;
+            case 3: globalBank->withdrawMenu();      pauseForUser(); break;
+            case 4: globalBank->balanceEnquiry();    pauseForUser(); break;
+            case 5: globalBank->viewTransactions();  pauseForUser(); break;
+            case 6: globalBank->reportTotalMoney();  pauseForUser(); break;
+            case 7: globalBank->reportLowBalance();  pauseForUser(); break;
+            case 8: globalBank->listAllAccounts();   pauseForUser(); break;
             case 0: cout << CYAN << "\n  Goodbye! Secure channel closed.\n" << RESET; break;
             default: cout << RED << "  ✗ Invalid option. Try again.\n" << RESET; pauseForUser();
         }
