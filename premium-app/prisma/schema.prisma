@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("USER")
+  name      String?
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id                String   @id @default(cuid())
+  title             String
+  brand             String
+  category          String
+  subcategory       String
+  originalPrice     Float
+  discountedPrice   Float
+  offerPercentage   Float
+  stock             Int      @default(0)
+  rating            Float    @default(0)
+  reviews           Int      @default(0)
+  images            String   // JSON string
+  colors            String   // JSON string
+  sizes             String   // JSON string
+  fabricType        String?
+  styleTags         String?  // JSON string
+  estimatedDelivery String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  OrderItems        OrderItem[]
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  userId        String?     // Can be null for guest checkouts
+  user          User?       @relation(fields: [userId], references: [id])
+  totalAmount   Float
+  status        String      @default("PENDING")
+  orderItems    OrderItem[]
+  customerName  String?
+  customerEmail String?
+  customerPhone String?
+  payment       Payment?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  quantity  Int
+  price     Float
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  orderId           String   @unique
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  razorpayPaymentId String?  @unique
+  razorpayOrderId   String   @unique
+  razorpaySignature String?
+  amount            Float
+  status            String   @default("PENDING")
+  method            String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

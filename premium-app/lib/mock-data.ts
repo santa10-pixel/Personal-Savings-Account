@@ -1,0 +1,496 @@
+export interface Product {
+  id: string;
+  title: string;
+  brand: string;
+  category: string; // "Men", "Women", "Kids", "Activewear", "Streetwear", "Sneakers", "Accessories", "Ethnic Wear"
+  subcategory: string; 
+  originalPrice: number;
+  discountedPrice: number;
+  offerPercentage: number;
+  stock: number; 
+  rating: number;
+  reviews: number;
+  images: string[];
+  colors: string[];
+  sizes: string[];
+  fabricType?: string;
+  styleTags?: string[];
+  estimatedDelivery: string;
+}
+
+const defaultSizes = ["S", "M", "L", "XL"];
+const kidSizes = ["4-5Y", "6-7Y", "8-9Y", "10-11Y"];
+const shoeSizes = ["7", "8", "9", "10", "11"];
+const oneSize = ["One Size"];
+
+export const mockProducts: Product[] = [
+  // MEN
+  {
+    id: "m-1",
+    title: "Slim Fit Urban Jeans",
+    brand: "ZARA",
+    category: "Men",
+    subcategory: "Jeans",
+    originalPrice: 3999,
+    discountedPrice: 2499,
+    offerPercentage: 37,
+    stock: 12,
+    rating: 4.8,
+    reviews: 124,
+    images: [
+      "https://images.unsplash.com/photo-1542272604-787c3835535d?w=800&q=80",
+      "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800&q=80",
+      "https://images.unsplash.com/photo-1582552938357-32b906df40cb?w=800&q=80",
+      "https://images.unsplash.com/photo-1604176354204-9268737828e4?w=800&q=80"
+    ],
+    colors: ["#1c2135", "#3a4659"], 
+    sizes: ["28", "30", "32", "34", "36"],
+    fabricType: "Stretch Denim",
+    styleTags: ["Urban", "Casual", "Slim"],
+    estimatedDelivery: "3-5 Business Days",
+  },
+  {
+    id: "m-2",
+    title: "Athletic Oversized Tee",
+    brand: "PUMA",
+    category: "Men",
+    subcategory: "Oversized T-Shirts",
+    originalPrice: 1999,
+    discountedPrice: 1299,
+    offerPercentage: 35,
+    stock: 3,
+    rating: 4.9,
+    reviews: 312,
+    images: [
+      "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80",
+      "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80",
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80",
+      "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80"
+    ],
+    colors: ["#111111", "#F8F7F4", "#8FA3BF"],
+    sizes: defaultSizes,
+    fabricType: "Premium Cotton Blend",
+    styleTags: ["Athleisure", "Oversized", "Gym"],
+    estimatedDelivery: "2-4 Business Days",
+  },
+  {
+    id: "m-3",
+    title: "Classic Leather Jacket",
+    brand: "ALLSAINTS",
+    category: "Men",
+    subcategory: "Jackets",
+    originalPrice: 15999,
+    discountedPrice: 12999,
+    offerPercentage: 18,
+    stock: 5,
+    rating: 5.0,
+    reviews: 42,
+    images: [
+      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=80",
+      "https://images.unsplash.com/photo-1520975954732-57dd22299614?w=800&q=80",
+      "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=800&q=80",
+      "https://images.unsplash.com/photo-1521223830114-411a28aeb24e?w=800&q=80"
+    ],
+    colors: ["#000000", "#3E2723"],
+    sizes: ["S", "M", "L", "XL"],
+    fabricType: "Genuine Leather",
+    styleTags: ["Classic", "Winter", "Premium"],
+    estimatedDelivery: "3-5 Business Days",
+  },
+
+  // WOMEN
+  {
+    id: "w-1",
+    title: "Elegant Floral Kurti",
+    brand: "AURA ETHNIC",
+    category: "Ethnic Wear",
+    subcategory: "Kurti",
+    originalPrice: 2999,
+    discountedPrice: 1599,
+    offerPercentage: 46,
+    stock: 5,
+    rating: 4.7,
+    reviews: 245,
+    images: [
+      "https://images.unsplash.com/photo-1605763240000-7e93b172d754?w=800&q=80", 
+      "https://images.unsplash.com/photo-1550614000-4b95dd2674af?w=800&q=80",
+      "https://images.unsplash.com/photo-1583391733958-6c5108f91040?w=800&q=80",
+      "https://images.unsplash.com/photo-1604085572502-dfa680eb0b4e?w=800&q=80"
+    ],
+    colors: ["#B89B72", "#F8F7F4"],
+    sizes: defaultSizes,
+    fabricType: "Silk Blend",
+    styleTags: ["Ethnic", "Festive", "Elegant"],
+    estimatedDelivery: "3-5 Business Days",
+  },
+  {
+    id: "w-2",
+    title: "Minimal Satin Dress",
+    brand: "ZARA",
+    category: "Women",
+    subcategory: "Dresses",
+    originalPrice: 5999,
+    discountedPrice: 4299,
+    offerPercentage: 28,
+    stock: 2,
+    rating: 4.9,
+    reviews: 188,
+    images: [
+      "https://images.unsplash.com/photo-1566206091558-7f218b696731?w=800&q=80",
+      "https://images.unsplash.com/photo-1515347619362-e64e9a0e6931?w=800&q=80",
+      "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800&q=80",
+      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&q=80"
+    ],
+    colors: ["#000000", "#7C8EA3"],
+    sizes: ["XS", "S", "M", "L"],
+    fabricType: "Premium Satin",
+    styleTags: ["Evening", "Minimal", "Luxury"],
+    estimatedDelivery: "1-2 Business Days (Express)",
+  },
+  {
+    id: "w-3",
+    title: "Wool Blend Overcoat",
+    brand: "MANGO",
+    category: "Women",
+    subcategory: "Coats",
+    originalPrice: 8999,
+    discountedPrice: 6499,
+    offerPercentage: 27,
+    stock: 14,
+    rating: 4.8,
+    reviews: 210,
+    images: [
+      "https://images.unsplash.com/photo-1539533113208-f6df8cc8b543?w=800&q=80",
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80",
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80",
+      "https://images.unsplash.com/photo-1613061527119-56ad37b46dcd?w=800&q=80"
+    ],
+    colors: ["#8B4513", "#D2B48C"],
+    sizes: ["XS", "S", "M", "L", "XL"],
+    fabricType: "Wool Blend",
+    styleTags: ["Winter", "Elegant", "Outerwear"],
+    estimatedDelivery: "3-5 Business Days",
+  },
+
+  // KIDS
+  {
+    id: "k-1",
+    title: "Playful Graphic T-Shirt",
+    brand: "H&M",
+    category: "Kids",
+    subcategory: "Kids T-Shirts",
+    originalPrice: 1299,
+    discountedPrice: 799,
+    offerPercentage: 38,
+    stock: 25,
+    rating: 4.8,
+    reviews: 56,
+    images: [
+      "https://images.unsplash.com/photo-1519238396590-449e75586616?w=800&q=80",
+      "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=800&q=80",
+      "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=800&q=80",
+      "https://images.unsplash.com/photo-1514090458221-65bb69cf63e6?w=800&q=80"
+    ],
+    colors: ["#F9C22E", "#53B3CB"],
+    sizes: kidSizes,
+    fabricType: "100% Organic Cotton",
+    styleTags: ["Playwear", "Casual"],
+    estimatedDelivery: "2-4 Business Days",
+  },
+  {
+    id: "k-2",
+    title: "Denim Overalls",
+    brand: "ZARA KIDS",
+    category: "Kids",
+    subcategory: "Overalls",
+    originalPrice: 2499,
+    discountedPrice: 1899,
+    offerPercentage: 24,
+    stock: 12,
+    rating: 4.9,
+    reviews: 88,
+    images: [
+      "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=800&q=80",
+      "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=800&q=80",
+      "https://images.unsplash.com/photo-1471286174890-9c11241eb988?w=800&q=80",
+      "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=800&q=80"
+    ],
+    colors: ["#5D8AA8"],
+    sizes: kidSizes,
+    fabricType: "Soft Denim",
+    styleTags: ["Playwear", "Denim", "Cute"],
+    estimatedDelivery: "2-4 Business Days",
+  },
+
+  // ACTIVEWEAR
+  {
+    id: "a-1",
+    title: "Dri-FIT Running Shorts",
+    brand: "NIKE",
+    category: "Activewear",
+    subcategory: "Shorts",
+    originalPrice: 2495,
+    discountedPrice: 1895,
+    offerPercentage: 24,
+    stock: 45,
+    rating: 4.9,
+    reviews: 842,
+    images: [
+      "https://images.unsplash.com/photo-1533681473412-f1be16016e10?w=800&q=80",
+      "https://images.unsplash.com/photo-1533681536767-f579d4948704?w=800&q=80",
+      "https://images.unsplash.com/photo-1584863265045-eaf5e1bc8edb?w=800&q=80",
+      "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&q=80"
+    ],
+    colors: ["#111111", "#8FA3BF"],
+    sizes: defaultSizes,
+    fabricType: "Dri-FIT Polyester",
+    styleTags: ["Running", "Gym", "Athletic"],
+    estimatedDelivery: "1-2 Business Days",
+  },
+  {
+    id: "a-2",
+    title: "Ultraboost Running Shoes",
+    brand: "ADIDAS",
+    category: "Sneakers",
+    subcategory: "Sneakers",
+    originalPrice: 15999,
+    discountedPrice: 12999,
+    offerPercentage: 18,
+    stock: 8,
+    rating: 5.0,
+    reviews: 1205,
+    images: [
+      "https://images.unsplash.com/photo-1587563871167-1ea9f005cb51?w=800&q=80",
+      "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=800&q=80",
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80",
+      "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800&q=80"
+    ],
+    colors: ["#F8F7F4", "#111111"],
+    sizes: shoeSizes,
+    fabricType: "Primeknit",
+    styleTags: ["Running", "Sneakers", "Performance"],
+    estimatedDelivery: "2-3 Business Days",
+  },
+  {
+    id: "a-3",
+    title: "Seamless Workout Leggings",
+    brand: "GYMSHARK",
+    category: "Activewear",
+    subcategory: "Leggings",
+    originalPrice: 4500,
+    discountedPrice: 3200,
+    offerPercentage: 28,
+    stock: 35,
+    rating: 4.8,
+    reviews: 512,
+    images: [
+      "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80",
+      "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=800&q=80",
+      "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80",
+      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80"
+    ],
+    colors: ["#111111", "#7B68EE", "#FF69B4"],
+    sizes: ["XS", "S", "M", "L"],
+    fabricType: "Seamless Blend",
+    styleTags: ["Yoga", "Gym", "Flexibility"],
+    estimatedDelivery: "2-4 Business Days",
+  },
+
+  // STREETWEAR
+  {
+    id: "s-1",
+    title: "Heavyweight Boxy Hoodie",
+    brand: "ESSENTIALS",
+    category: "Streetwear",
+    subcategory: "Hoodies",
+    originalPrice: 8999,
+    discountedPrice: 8999,
+    offerPercentage: 0,
+    stock: 4,
+    rating: 4.9,
+    reviews: 320,
+    images: [
+      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80",
+      "https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?w=800&q=80",
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80",
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=80"
+    ],
+    colors: ["#EFECE6", "#B89B72"],
+    sizes: ["S", "M", "L"],
+    fabricType: "Heavyweight French Terry",
+    styleTags: ["Streetwear", "Oversized", "Premium"],
+    estimatedDelivery: "3-5 Business Days",
+  },
+  {
+    id: "s-2",
+    title: "Air Force 1 '07",
+    brand: "NIKE",
+    category: "Sneakers",
+    subcategory: "Sneakers",
+    originalPrice: 9495,
+    discountedPrice: 9495,
+    offerPercentage: 0,
+    stock: 0,
+    rating: 4.8,
+    reviews: 4500,
+    images: [
+      "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&q=80",
+      "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800&q=80",
+      "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=800&q=80",
+      "https://images.unsplash.com/photo-1620806815372-ce15bab4c483?w=800&q=80"
+    ],
+    colors: ["#ffffff"],
+    sizes: shoeSizes,
+    fabricType: "Leather",
+    styleTags: ["Sneakers", "Classic", "Streetwear"],
+    estimatedDelivery: "Out of Stock",
+  },
+  {
+    id: "s-3",
+    title: "Vintage Wash Graphic Tee",
+    brand: "STÜSSY",
+    category: "Streetwear",
+    subcategory: "T-Shirts",
+    originalPrice: 3499,
+    discountedPrice: 2899,
+    offerPercentage: 17,
+    stock: 18,
+    rating: 4.6,
+    reviews: 89,
+    images: [
+      "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80",
+      "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&q=80",
+      "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80",
+      "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80"
+    ],
+    colors: ["#000000", "#5A5A5A"],
+    sizes: defaultSizes,
+    fabricType: "Washed Cotton",
+    styleTags: ["Vintage", "Graphic", "Streetwear"],
+    estimatedDelivery: "2-4 Business Days",
+  },
+  {
+    id: "s-4",
+    title: "Cargo Utility Pants",
+    brand: "CARHARTT WIP",
+    category: "Streetwear",
+    subcategory: "Pants",
+    originalPrice: 6999,
+    discountedPrice: 5499,
+    offerPercentage: 21,
+    stock: 10,
+    rating: 4.7,
+    reviews: 142,
+    images: [
+      "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800&q=80",
+      "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&q=80",
+      "https://images.unsplash.com/photo-1584863265045-eaf5e1bc8edb?w=800&q=80",
+      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=800&q=80"
+    ],
+    colors: ["#556B2F", "#000000"],
+    sizes: ["30", "32", "34", "36"],
+    fabricType: "Ripstop Cotton",
+    styleTags: ["Utility", "Cargo", "Streetwear"],
+    estimatedDelivery: "3-5 Business Days",
+  },
+
+  // ACCESSORIES
+  {
+    id: "acc-1",
+    title: "Minimalist Silver Watch",
+    brand: "DANIEL WELLINGTON",
+    category: "Accessories",
+    subcategory: "Watches",
+    originalPrice: 12999,
+    discountedPrice: 8999,
+    offerPercentage: 30,
+    stock: 15,
+    rating: 4.9,
+    reviews: 512,
+    images: [
+      "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=80",
+      "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=800&q=80",
+      "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=800&q=80",
+      "https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=800&q=80"
+    ],
+    colors: ["#C0C0C0"],
+    sizes: oneSize,
+    fabricType: "Stainless Steel",
+    styleTags: ["Minimal", "Elegant", "Accessory"],
+    estimatedDelivery: "2-3 Business Days",
+  },
+  {
+    id: "acc-2",
+    title: "Classic Aviator Sunglasses",
+    brand: "RAY-BAN",
+    category: "Accessories",
+    subcategory: "Sunglasses",
+    originalPrice: 8490,
+    discountedPrice: 6790,
+    offerPercentage: 20,
+    stock: 22,
+    rating: 4.8,
+    reviews: 890,
+    images: [
+      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
+      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
+      "https://images.unsplash.com/photo-1582142407894-ec85a1260a46?w=800&q=80",
+      "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=800&q=80"
+    ],
+    colors: ["#000000", "#FFD700"],
+    sizes: oneSize,
+    fabricType: "Metal & Glass",
+    styleTags: ["Classic", "Summer", "Accessory"],
+    estimatedDelivery: "2-4 Business Days",
+  },
+  {
+    id: "acc-3",
+    title: "Leather Crossbody Bag",
+    brand: "COACH",
+    category: "Accessories",
+    subcategory: "Bags",
+    originalPrice: 24999,
+    discountedPrice: 18999,
+    offerPercentage: 24,
+    stock: 7,
+    rating: 4.9,
+    reviews: 320,
+    images: [
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800&q=80",
+      "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800&q=80",
+      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&q=80",
+      "https://images.unsplash.com/photo-1591561954557-26941169b49e?w=800&q=80"
+    ],
+    colors: ["#8B4513", "#000000"],
+    sizes: oneSize,
+    fabricType: "Premium Leather",
+    styleTags: ["Luxury", "Everyday", "Bag"],
+    estimatedDelivery: "3-5 Business Days",
+  },
+  
+  // ETHNIC WEAR
+  {
+    id: "eth-1",
+    title: "Embroidered Silk Sherwani",
+    brand: "MANYAVAR",
+    category: "Ethnic Wear",
+    subcategory: "Sherwani",
+    originalPrice: 14999,
+    discountedPrice: 11999,
+    offerPercentage: 20,
+    stock: 5,
+    rating: 4.9,
+    reviews: 45,
+    images: [
+      "https://images.unsplash.com/photo-1596455607563-ad6193f76b11?w=800&q=80",
+      "https://images.unsplash.com/photo-1597983073493-88cd35cf93b0?w=800&q=80",
+      "https://images.unsplash.com/photo-1605763240000-7e93b172d754?w=800&q=80",
+      "https://images.unsplash.com/photo-1583391733958-6c5108f91040?w=800&q=80"
+    ],
+    colors: ["#FFD700", "#800000"],
+    sizes: ["38", "40", "42", "44"],
+    fabricType: "Raw Silk",
+    styleTags: ["Wedding", "Festive", "Ethnic"],
+    estimatedDelivery: "5-7 Business Days",
+  }
+];
