@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd campusos/frontend && npm install && npm run build",
+  "outputDirectory": "campusos/frontend/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

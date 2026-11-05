@@ -1,0 +1,47 @@
+services:
+  # 1. FastAPI Web Service (Backend API)
+  - type: web
+    name: campusos-api
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && PYTHONPATH=../.. alembic upgrade head
+    startCommand: uvicorn campusos.backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: campusos-postgres
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: DEFAULT_TIMEZONE
+        value: Asia/Kolkata
+      - key: FRONTEND_URL
+        value: https://campusos.vercel.app
+
+  # 2. Background Notification Worker
+  - type: worker
+    name: campusos-worker
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m campusos.backend.app.workers.scheduler_worker
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: campusos-postgres
+          property: connectionString
+
+databases:
+  # 3. Managed PostgreSQL Database
+  - name: campusos-postgres
+    region: oregon
+    plan: free
+    databaseName: campusos
+    user: campusos
