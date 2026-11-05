@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: campusos-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: campusos
+      POSTGRES_PASSWORD: campusos_password
+      POSTGRES_DB: campusos
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: campusos-api
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://campusos:campusos_password@db:5432/campusos
+      - SECRET_KEY=campusos-docker-production-secret-key-2026
+      - JWT_SECRET_KEY=campusos-docker-jwt-secret-key-2026
+    depends_on:
+      - db
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: campusos-worker
+    restart: always
+    command: python -m campusos.backend.app.workers.scheduler_worker
+    environment:
+      - DATABASE_URL=postgresql://campusos:campusos_password@db:5432/campusos
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: campusos-frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
